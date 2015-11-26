@@ -1,0 +1,514 @@
+
+
+Note:
+Code has only been tested on MS Visual-C 6 (although it should work under MinGW too)
+
+==============================================================================
+
+Microsoft Compiler Type Sizes
+-----------------------------
+char, unsigned char, signed char	1 byte
+typedef unsigned char	UCHAR;
+typedef unsigned char   BYTE;
+
+
+short, unsigned short				2 bytes
+typedef unsigned short	USHORT;
+typedef unsigned short  WORD;
+
+int, unsigned int					4 bytes
+typedef unsigned int    UINT;
+
+long, unsigned long					4 bytes
+typedef unsigned long	ULONG;
+typedef unsigned long   DWORD;
+
+float								4 bytes
+double								8 bytes
+long double							8 bytes
+
+Notes: UINT and ULONG appear to be equal and as "fast" as each other, this
+would make sense as CPU is 32bits.
+
+
+LZSS Implementation
+===================
+Jonathan Bennett (c)2002-2003, jon@hiddensoft.com
+
+All code contained is free to use.  Just let me know that you have found it useful.
+Check the "lzss.txt" file for information on the algorithm, this file just details the
+technical changes.
+
+
+v0.10
+=====
+First implementation of the LZSS routine.  Coded to be as readable as something
+this complicated can be.
+
+The way matches are searched for is called "greedy parsing" and is very very slow.
+A 2 meg file takes around 1m45s on a 366MHz CPU to compress :(
+
+
+
+v0.11
+=====
+(NOTE: It was found that this is slightly incorrect -- see v1.00)
+
+First optimization is in the compression.  We use a number of bits to code the
+(offset, len) pair.  For example, 0-4095 (12 bits) for the window size and 0-63 (6bits)
+for the match size.  Each literal byte encoded is 9bits.  In this example we are using
+18 bits for a (offset, len) pair so this means that it is only worth encoding 3 bytes or
+more.
+So, if our minimum match length is 3, then the (offset, len) pair will never use the
+values 0,1 and 2.  So, why don't we use this to increase the size of the numbers we
+can encode into (offset, len)?  Instead of 0-4095 we have 2-4097, and instead of
+0-63 we have 2-65.  It's effectively free bits!  On a 1MB file this improved the compression
+by a couple of percent.  Not much, but hey!
+
+All the window size, and match lengths are now definable at run-time.
+
+
+
+v0.20
+=====
+Speed optimizations were done by using a chaining hash table rather than greedy parsing.
+Compression of a 2 meg file was reduced from 1m45s to 5s with only 1% loss of compression!
+Almost usable now.  At this point I think the "hash table" related patents may kick in...
+
+
+
+v0.21
+=====
+General changes.
+- Compression and decompression code split into two classes so that you can include
+  just one of them in your programs to save a couple of kilobytes.
+- When a value is added to the hash table, and there is no more room in the chain
+  the oldest entry is replaced.  Will not improve compression much (0.5%), but it will
+  mean that matches are closer to the position being searched which may help in the future.
+- Hash table converted into a one-way linked list (rather than 2 way) to reduce memory needed
+
+
+
+v0.30
+=====
+"lazy evaluation" implemented.  Strangely enough, this speeded things up a little, and of
+course the compression ratio was increased a little.
+
+It seems that when using small hash tables (chain limit ~2) that the most efficient window
+and match bits size are 12-13 and 4.  This is because with a small chain limit (although fast)
+you don't get the extra compression that the larger window gives.  For good compression
+(not best speed) a good value for the chain limit is window size / 256.
+
+Here are my results for a 2 meg binary .exe file:
+
+Test 1
+------
+
+A hash chain limit of 2 was used.
+Original file size is 2345984 bytes
+
+Window Bits  Match Bits  Compressed Size  Hash Mem Used  Time Taken
+-----------  ----------  ---------------  -------------  ----------
+	 12          4       1315650          74488          3 secs
+	 13          4       1321970          81032          3 secs
+	 12          5       1326140          74632          3 secs
+	 13          5       1330782          81032          3 secs
+	 11          4       1331880          69552          3 secs
+	 14          4       1337788          90304          3 secs
+	 12          3       1344038          74176          3 secs
+	 14          5       1344550          90328          3 secs
+	 11          5       1345478          69596          3 secs
+	 11          3       1353626          68912          3 secs
+	 13          3       1354798          80968          3 secs
+	 10          4       1359530          65112          3 secs
+	 15          4       1366410          95872          3 secs
+	 15          5       1371068          95864          3 secs
+	 10          5       1374808          65272          3 secs
+	 10          3       1376084          64504          3 secs
+	 14          3       1375580          90264          3 secs
+	 15          3       1408496          95856          3 secs
+
+The first thing obvious from these results is that in every case
+the best "match bit" size for a given window size is 4 - we will
+concentrate on this size from now on.
+
+
+Test 2
+------
+
+A hash chain limit of 16 was used.
+Original file size is 2345984 bytes
+
+Window Bits  Match Bits  Compressed Size  Hash Mem Used  Time Taken
+-----------  ----------  ---------------  -------------  ----------
+	 13          4       1211858          169312         4 secs
+	 14          4       1212150          221680         5 secs
+	 12          4       1218880          145928         4 secs
+	 11          4       1247888          122264         4 secs
+	 15          4       1223296          305760         5 secs
+	 10          4       1284376          113680         4 secs
+
+Interesting, again, it is 13 putting up a good performance along with
+11, 12 and 14.
+
+
+Test 3
+------
+
+A hash chain limit of 32 was used.
+Original file size is 2345984 bytes
+
+Window Bits  Match Bits  Compressed Size  Hash Mem Used  Time Taken
+-----------  ----------  ---------------  -------------  ----------
+	 14          4       1194912          249712         6 secs
+	 13          4       1197928          196312         5 secs
+	 15          4       1202494          358056         6 secs
+	 12          4       1207556          160728         4 secs
+	 11          4       1238556          139168         4 secs
+	 10          4       1276936          132920         4 secs
+
+Again 12, 13 and 14 are giving the best compression (13 is my fave at this
+point due to it being quicker than the others).  I'll now drop 10 and 11 from
+the testing
+
+
+Test 3
+------
+
+A hash chain limit of 64 was used.
+Original file size is 2345984 bytes
+
+Window Bits  Match Bits  Compressed Size  Hash Mem Used  Time Taken
+-----------  ----------  ---------------  -------------  ----------
+	 14          4       1185580          280816         7 secs
+	 15          4       1190544          391360         8 secs
+	 13          4       1190618          212616         5 secs
+	 12          4       1202214          170272         5 secs
+
+
+The pattern seems to be 13 is a good general window size giving both good
+compression and speed, but a window size of 14 starts giving better compression
+(at the expense of speed) as the hash chain limit reaches 32 and above.  Lets do
+a very large hash table to prove the trend
+
+
+Test 4
+------
+
+A hash chain limit of 1024 was used.
+Original file size is 2345984 bytes
+
+Window Bits  Match Bits  Compressed Size  Hash Mem Used  Time Taken
+-----------  ----------  ---------------  -------------  ----------
+	 14          4       1172642          357056         25 secs
+	 13          4       1181234          261240         19 secs
+
+Yes, once over a hash chain limit of 32, a window size of 14 bits seems
+to be the way to go.  Lets see at what point raising the hash limit
+becomes a waste.
+
+
+Test 5
+------
+
+Window Bits  Hash Limit  Compressed Size  Hash Mem Used  Time Taken
+-----------  ----------  ---------------  -------------  ----------
+	 14         128      1179972          305960         12 secs
+	 14         256      1176368          320112         15 secs
+	 14         512      1174192          339536         21 secs
+	 14         1024     1172642          357056         25 secs
+	 14         2048     1171360          370504         46 secs
+
+
+Based on these tests, it looks like having variable window and match bit
+sizes is a little bit of a waste of time, 4 options would seem to be the
+way to go:
+
+//Compression Level  Window Bits  Match Bits  Hash Limit
+//-----------------  -----------  ----------  ----------
+//Fast       (0)     12           4           2
+//Normal     (1)     13           4           8
+//Slow       (2)     13           4           16
+//Very slow  (3)     14           4           32
+//Ultra slow (4)     14           4           128
+
+
+
+v1.00
+=====
+For release.
+Compression options as detailed above implemented.
+
+Bug fixed in the minimum length and "adjust" matching:
+
+"So, if our minimum match length is 3, then the (offset, len) pair will never use the
+values 0,1 and 2.  So, why don't we use this to increase the size of the numbers we
+can encode into (offset, len)?  Instead of 0-4095 we have 2-4097, and instead of
+0-63 we have 2-65.  It's effectively free bits!  On a 1MB file this improved the compression
+by a couple of percent.  Not much, but hey!"
+
+Not true, it should be 3-4098 and 3-66.
+
+
+
+v1.01
+=====
+Redid hashing functions to increase speed.  Also added a "malloc" buffer so that
+the constant malloc/free calls don't take up as much time.
+Changed the algorithm ID to "JB01".
+Window bits fixed at 13, length at 4.  Compression level is now user controlled
+by the "hash chain" limit.
+
+// The compression level parameter (0-4) gives the following results:
+// Compression Level  Window Bits  Match Bits  Hash Limit
+// -----------------  -----------  ----------  ----------
+// Fast       (0)     13           4           1
+// Normal     (1)     13           4           4
+// Slow       (2)     13           4           16
+// Very slow  (3)     13           4           64
+// Ultra slow (4)     13           4           256
+
+
+
+v1.02 (Single file Calgary Corpus = 3.389 bpb or 57.64%)
+=====
+Minor changes
+
+
+
+V1.10 (Single file Calgary Corpus = 3.151 bpb or 60.61%)
+=====
+Based on work I was doing with LZP changed the way that match lengths are stored.
+Instead of using a fixed number of bits, the LZP way is used where small numbers of
+bits are used for small match lengths (more common) and large numbers of bits for
+"freaky" longer matches.  The change gained 0.25 bpb (Calgary Corpus) which is 3% -
+pretty good improvement!  Also, because longer matches are possible a nice side
+effect is that the entire routine is faster (Twice as fast on one 10MB file I tried!)
+Not bad for what amounted to an extra 10 lines of code! ( See CompressedStreamWriteMatchLen() )
+
+- Routine for finding matches tidied up.
+- Lazy evaluation removed because it was very messy (only lost 0.01 bpb), may reimplement
+in the future
+
+
+
+V1.20 (Single file Calgary Corpus = 3.159 bpb or 60.51%, 11.72s (PII366))
+=====
+No direct compression changes:
+- Code is now compressed in small blocks so that large files can be handled
+- CompressFile and CompressMem functions implemented
+- Until finished, the algorithm ID will be BETA
+
+// The start of the compression stream will contain "other" items apart from data.
+// The data is compressed in blocks, the compressed then uncompressed size of the block
+// is output followed by the compressed block itself.  This is repeated until a compressed
+// block size of 0 is reached
+//
+// Algorithm ID				4 bytes
+// Total Uncompressed Size	4 bytes (1 ULONG)
+// ...
+// Compressed Block1 Size	4 bytes (1 ULONG)
+// Uncompressed Block1 Size	4 bytes (1 ULONG)
+// Compressed Block1 Data	nn bytes (where nn=compressed block size)
+// ...
+// Compressed Blockn Size	4 bytes (1 ULONG)
+// Uncompressed Blockn Size	4 bytes (1 ULONG)
+// Compressed Blockn Data	nn bytes (where nn=compressed block size)
+// ...
+// 00 00 00 00				4 bytes (1 ULONG)
+
+Obviously, this means are redundant values in the data stream which hurts compression.
+
+
+
+V1.21 (Single file Calgary Corpus = 2.934 bpb or 63.33%, 31.24s (PII366)) (or 3.2bpb/58% in 5s)
+=====
+- Data and Compression blocks total 1MB of memory.
+- Lazy eval of +1 reintroduced now that the code is a lot tidier :)
+- Number of bits used for the window length vary depending on file size, which
+  helps compression be good on both small and large files
+
+
+
+V1.22 (Single file Calgary Corpus = 2.883 bpb or 63.96%, 31.32s (PII366)) (or 3.5bpb/56% in 3s)
+=====
+- Added huffman coding for literals.  It generates the tree based on the frequency of
+  the last 8192 literals written.  Therefore the table does not need to be transmitted
+  as the decompressor just does the same.  The tree is updated every 8192 literals which
+  helped compression.
+- Memory and speed tweaked.
+
+
+V1.23 (Single file Calgary Corpus = 2.826 bpb or 64.67%, 20.61s (PII366)) (or 3.8bpb/52% in 3s)
+=====
+- Minor changes to the huffman code
+- Number of bits used for window length increases from the start of a block until == 15
+  (Helps compression at the start of a block/small files)
+- Some hash/linked list improvements (memory pruned periodically to save memory)
+- Match length coding tweaked for slightly better compression in most cases
+- Changed "Uncompress" to "Decompress" - it was bugging me.
+
+
+V1.24 (Single file Calgary Corpus = 2.786 bpb or 65.17%, 22.06s (PII366)) (or 3.7bpb/53% in 3s)
+=====
+- Minor changes to the huffman code
+- Number of bits used for window length increases from the start of a block until == 15
+  (Helps compression at the start of a block/small files)
+- Some hash/linked list improvements (memory pruned periodically to save memory)
+- Match length coding tweaked for slightly better compression in most cases
+- Changed "Uncompress" to "Decompress" - it was bugging me.
+- Changed the max match length to 256 and huffman encoded it along with the literals
+  as the same 512 character alphabet.  Mind-blowing stuff.
+
+
+V1.25 (Single file Calgary Corpus = 2.757 bpb or 65.54%, 20.62s (PII366)) (or 3.6bpb/53% in 3s)
+=====
+- 32 literal codes are used to describe the range of the match length, and then additional
+  bits are used to "finished it off".  Similar to the LZP method I was using but more
+  cunning. :)  This results in a huffman alphabet of 288 literals:
+
+Code	More Bits?	Length
+
+----	----------	------
+256		0			0
+257		0			1
+258		0			2
+259		0			3
+260		0			4
+261		0			5
+262		0			6
+263		0			7
+
+264		1			8-9
+265		1			10-11
+266		1			12-13
+267		1			14-15
+
+268		2			16-19
+269		2			20-23
+270		2			24-27
+271		2			28-31
+
+272		3			32-39
+273		3			40-47
+274		3			48-55
+275		3			56-63
+
+276		4			64-79
+277		4			80-95
+278		4			96-111
+279		4			112-127
+
+280		5			128-159
+281		5			160-191
+282		5			192-223
+283		5			224-255
+
+284		6			256-319
+285		6			320-383
+286		6			384-447
+287		6			448-511
+
+
+
+V1.26 (Single file Calgary Corpus = 2.706 bpb or 66.18%, 20.82s (PII366)) (or 3.3bpb/58% in 3s)
+=====
+- Similar trick this time.  A new alphabet (second huffman tree) is used to code
+  the match offsets.  30 codes are used to represent the MSB of the offset
+  (values based on an article on PKZIP).
+
+
+Code	More Bits?	Offset
+----	----------	------
+0		0			0
+1		0			1
+2		0			2
+3		0			3
+
+4		1			4-5
+5		1			6-7
+
+6		2			8-11
+7		2			12-15
+
+8		3			16-23
+9		3			24-31
+
+10		4			32-47
+11		4			48-63
+
+12		5			64-95
+13		5			96-127
+
+14		6			128-191
+15		6			192-255
+
+16		7			256-383
+17		7			384-511
+
+18		8			512-767
+19		8			768-1023
+
+20		9			1024-1535
+21		9			1536-2047
+
+22		10			2048-3071
+23		10			3072-4095
+
+24		11			4096-6143
+25		11			6144-8191
+
+26		12			8192-12287
+27		12			12288-16383
+
+28		13			16384-24575
+29		13			24576-32767
+
+
+
+V1.27 (Single file Calgary Corpus = 2.706 bpb or 66.18%, 20.82s (PII366)) (or 3.3bpb/58% in 3s)
+=====
+- Added a callback function for monitoring progress and current compression ratio :)
+- Added flexible ways of compressing from mem/file to mem/file
+- The callback function can abort compression by returning 0 (return 1 to continue)
+- Changed hash table code, uses a little more memory but is twice as quick
+
+
+V1.28 (Single file Calgary Corpus = 2.599 bpb or 67.51%, 16.67s (PII366)) (or 3.1bpb/60% in 4s)
+=====
+- Improved string matching routine
+
+
+V1.29 (Single file Calgary Corpus = 2.627 bpb or 67.17%, 12.82s (PII366)) (or 3.2bpb/59% in 3s)
+=====
+- Hash tables and string matching rewritten (again!) Much better on large files (although stats
+  above don't really show this.  50% speed improvement on a 9meg file).
+- Using larger values for HuffmanDelay as decompression was too slow (LZ77 is supposed to have
+  fast decompression! :) )
+- Added memory allocation testing
+- Huffman codes limited to 16 bits
+
+
+V1.30 (Single file Calgary Corpus = 2.572 bpb or 67.85%, 10.53s (P4 2Ghz)) (or 3.0bpb/61% in 1s)
+=====
+- Got a faster computer so reworked things for better compression sacrificing speed...
+- Added memory allocation testing to decompress routines (d'oh)
+- inlined some functions (minor speed improvement)
+- Improved the initial huffman generation
+- Tweaked the compression level parameters
+- Changed source code into a similar format that I'm currently using for AutoIt v3
+
+
+v1.40 (Single file Calgary Corpus = 2.549 bpb or 68.14%, 6.68s (P4 2Ghz)) (or 3.1bpb/61% in 1s)
+=====
+- Rewrote many things, most important is that a "circular/ring" buffer is now used and files are no longer
+    split into "blocks" which helps compression.  Buffers reduced from 2meg to 256KB.
+- Fixed very bad and stupid bug with match offsets (crash city under the correct circumstances)
+- Hash tables once again rewritten - now uses half the memory (although still too much at 700KB) and faster
+- Tweaked huffman code generation (and fixed a bug, smallest frequencies were not always selected... :( )
+
+
+v1.40a
+======
+- Fixed error when trying to compress files less that 4 bytes long (bad crash)
+

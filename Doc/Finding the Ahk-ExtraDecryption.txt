@@ -1,0 +1,114 @@
+1. open target in Olly
+
+2. 'unpacking' UPX
+	just scroll down until it looks like here
+
+	PUSH    EBX
+	PUSH    EDI
+	CALL    EBP
+	POP     EAX
+	POPAD
+	LEA     EAX, [ESP-80]
+	PUSH    0
+	CMP     ESP, EAX
+	JNZ     SHORT 00471BD0
+	SUB     ESP, -80
+	JMP     00442B4F   <- set BREAKPOINT here
+	DB      00
+	DB      00
+	DB      00
+	DB      00
+
+
+3. String Reference ">AUTOHOTKEY SCRIPT<"
+
+to jump in here:
+
+	LEA     EAX, [ARG.11]
+	PUSH    EAX
+	LEA     EAX, [ARG.24]
+	PUSH    EAX
+	PUSH    0045E320             ASCII ">AUTOHOTKEY SCRIPT<"
+	LEA     ECX, [LOCAL.84]
+	MOV     [ARG.4], EBX
+	CALL    <StrCmp>
+	TEST    EAX, EAX
+	JNZ     SHORT 004482A7
+	MOV     [ESI+4B1], BL
+	JMP     <Continue>
+
+	Place label(StrCmp; Continue) to get a better overview
+	No the same pattern ">AHK WITH ICON<"
+
+
+	LEA     EAX, [ARG.11]
+	PUSH    EAX                              ; /Arg3
+	LEA     EAX, [ARG.24]                    ; |
+	PUSH    EAX                              ; |Arg2
+	PUSH    0045E310                         ; |Arg1 = 0045E310 ASCII ">AHK WITH ICON<"
+	LEA     ECX, [LOCAL.84]                  ; |
+	CALL    <StrCmp>                         ; \includes.00450C9F
+	TEST    EAX, EAX
+	JNZ     SHORT 004482CC
+	MOV     [BYTE ESI+4B1], 1
+	JMP     SHORT <Continue>
+------------------------------------------------------------------------------
+
+And now the N/A Versions...
+
+ note  ">"  is ">AUTOHOTKEY SCRIPT<" ...
+
+	LEA     EAX, [ARG.11]
+	PUSH    EAX                              ; /Arg3
+	LEA     EAX, [ARG.24]                    ; |
+	PUSH    EAX                              ; |Arg2
+	PUSH    0045B68C              ">"
+	LEA     ECX, [LOCAL.84]                  ; |
+	MOV     [ARG.4], 1                       ; |
+	CALL    <StrCmp>                         ; \includes.00450C9F
+	TEST    EAX, EAX
+	JNZ     SHORT 004482F7
+	MOV     [ESI+4B1], BL
+	JMP     SHORT <AHK-ExtraDecryt>
+
+ ... and  "<"  is ">AHK WITH ICON<"
+
+
+	LEA     EAX, [ARG.11]
+	PUSH    EAX                              ; /Arg3
+	LEA     EAX, [ARG.24]                    ; |
+	PUSH    EAX                              ; |Arg2
+	PUSH    0045B684                         ; |Arg1 = 0045B684
+	LEA     ECX, [LOCAL.84]                  ; |
+	CALL    <StrCmp>                         ; \includes.00450C9F
+	TEST    EAX, EAX
+	JNZ     <Could not extract script from Exe
+	MOV     [BYTE ESI+4B1], 1
+
+4. And here it is da AHK-ExtraDecryt !!!
+
+AHK-ExtraDecryt:
+	MOV     EAX, [ARG.11]  				ARG.11= ScriptLength
+	LEA     EDX, [EAX+2BC]				DX = ScriptLength + 700  [<-0x2BC] !!!
+	CMP     DX, BX						Note: BX=0000
+	JNZ     SHORT SKIP_EDX_400
+	MOV     EDX, 400
+SKIP_EDX_400:
+	SHR     EAX, 1						= ScriptLength \ 2
+	MOV     ECX, [ARG.24]  				ARG.24 = ScriptStart
+	MOV     [ARG.28], ECX  				ARG.24 = i
+	MOV     ECX, EBX					Note: EBX=00000000
+	JE      SHORT <Continue>
+Loop
+	/MOV     EDI, [ARG.28]
+	|LEA     EDI, [EDI+ECX*2]
+	|SUB     [EDI], DX					ScriptStart[i*2] = ScriptStart[i*2] - DX
+	|INC     ECX
+	|CMP     ECX, EAX
+	\JB      SHORT Loop
+
+Continue:
+	MOV     EAX, [ARG.24]
+
+
+5. The important value is the 700

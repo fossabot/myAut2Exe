@@ -1,0 +1,350 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head id="ctl00_Head1">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+
+
+<link id="ctl00_HeaderLink2" rel="stylesheet" type="text/css" href="regexp/PrintFriendly-bn2090.css">
+
+<link rel="stylesheet" type="text/css" href="regexp/mtps-bn2090.css"><link rel="alternate" media="print" href="http://msdn.microsoft.com/en-us/library/1400241x%28VS.85,printer%29.aspx">
+<title>
+	Regular Expression Syntax (Scripting)
+</title></head><body id="ctl00_Mtps_body" dir="ltr">
+
+ 
+	
+     
+<style type="text/css">
+.vb, .cs, .cpp, .nu
+{
+	display:none;
+}
+</style>
+<style id="LanguageSpecificTextStyle" type="text/css">
+.nu
+{
+   display:inline;
+}
+</style> 
+      <div class="ContentArea">
+          
+          <div class="topic">
+            <div class="title">
+        <a href="http://msdn.microsoft.com/en-us/library/1400241x(VS.85).aspx">Regular Expression Syntax (Scripting)</a>
+          	</div><!--
+      Content type: Devdiv1. Transform: orcas2mtps.xslt.
+    --><div id="mainSection"> <div id="mainBody">  <span style="color: DarkGray;"> </span> <p> </p><p><span style="color: DarkGray;">Updated: November 2007</span></p><div class="introduction"><p>
+A regular expression is a pattern of text that consists of ordinary
+characters (for example, letters a through z) and special characters,
+known as <i>metacharacters</i>.
+The pattern describes one or more strings to match when searching a
+body of text. The regular expression serves as a template for matching
+a character pattern to the string being searched. </p></div><div id="ctl00_mainContentContainer_cpe38657" class="MTPS_CollapsibleRegion">
+	<div id="ctl00_mainContentContainer_cpe38657_h" class="CollapseRegionLink">
+		<img id="ctl00_mainContentContainer_cpe38657_i" class="LibC_o" src="regexp/clear.gif" style="border-width: 0px; vertical-align: middle;">&nbsp;Examples of Regular Expressions
+	</div><div style="overflow: visible; display: block; height: auto;" id="ctl00_mainContentContainer_cpe38657_c" class="MTPS_CollapsibleSection"><div style="display: block;" id="" class="MTPS_CollapsibleSection">
+		<!---->
+		<div class="caption"><!----></div><div class="tableSection"><table width="50%" frame="lhs"><tbody><tr><th><p>
+                    JScript
+                </p></th><th><p>
+                    VBScript
+                </p></th><th><p>
+                    Matches
+                </p></th></tr><tr><td><p>
+                    /^\s[ \t]*$/
+                </p></td><td><p>
+                    "^\s*$"
+                </p></td><td><p>
+                    Match a blank line.
+                </p></td></tr><tr><td><p>
+                    /\d{2}-\d{5}/
+                </p></td><td><p>
+                    "\d{2}-\d{5}"
+                </p></td><td><p>
+                    Validate an ID number consisting of 2 digits, a hyphen, and another 5 digits.
+                </p></td></tr></tbody></table></div><p>
+The following table contains the complete list of metacharacters and
+their behavior in the context of regular expressions: </p><div class="caption"><!----></div><div class="tableSection"><table width="50%" frame="lhs">
+  <tbody><tr><th><p>
+                    Character
+                </p></th><th><p>
+                    Description
+                </p></th></tr><tr><td><p>
+                    \
+                </p></td><td><p>
+Marks the next character as a special character, a literal, a
+backreference, or an octal escape. For example, 'n' matches the
+character "n". '\n' matches a newline character. The sequence '\\'
+matches "\" and "\(" matches "(". </p></td></tr><tr><td><p>
+                    ^
+                </p></td><td><p>
+                    Matches the position at the <u>beginning</u> of the input string.<br />
+                    If the <b>RegExp</b> object's <b>Multiline</b> property is set, ^ also matches the position following '\n' or '\r'.
+                </p></td></tr><tr><td><p>
+                    $
+                </p></td><td><p>
+                    Matches the position at the <u>end</u> of the input string.<br />
+                    If the <b>RegExp</b> object's <b>Multiline</b> property is set, $ also matches the position preceding '\n' or '\r'.
+                </p></td></tr><tr><td><p>
+                    *
+                </p></td><td><p>
+Matches the preceding character or subexpression <u>zero</u> or more times.
+    <br />
+    For example, zo* matches "z" and "zoo". * is equivalent to {0,}. </p></td></tr><tr><td><p>
+                    +
+                </p></td><td><p>
+Matches the preceding character or subexpression <u>one</u> or more times. <br />
+For
+example, 'zo+' matches "zo" and "zoo", but not "z". + is equivalent to
+{1,}. </p></td></tr><tr><td><p>
+                    ?
+                </p></td><td><p>
+Matches the preceding character or subexpression <u>zero</u> or <u>one</u> time. <br />
+For
+example, "do(es)?" matches the "do" in "do" or "does". ? is equivalent
+to {0,1} </p></td></tr><tr><td><p>
+                    {<i>n</i>}
+                </p></td><td><p> <i>n</i> is a nonnegative integer. Matches <u>exactly</u> <i>n</i> times. For example, 'o{2}' does not match the 'o' in "Bob," but matches the two o's in "food".
+                </p></td></tr><tr><td><p>
+                    {<i>n</i>,}
+                </p></td><td><p> <i>n</i> is a nonnegative integer. Matches <u>at least</u> <i>n</i>
+times. For example, 'o{2,}' does not match the 'o' in "Bob" and matches
+all the o's in "foooood". 'o{1,}' is equivalent to 'o+'. 'o{0,}' is
+equivalent to 'o*'. </p></td></tr><tr><td><p>
+                    {<i>n</i>,<i>m</i>}
+                </p></td><td><p> <i>m</i> and <i>n</i> are nonnegative integers, where <i>n</i> &lt;= <i>m</i>. Matches at least <i>n</i> and at most <i>m</i>
+times. For example, "o{1,3}" matches the first three o's in "fooooood".
+'o{0,1}' is equivalent to 'o?'. Note that you cannot put a space
+between the comma and the numbers. </p></td></tr><tr><td><p>
+                    ?
+                </p></td><td><p>
+                    When this character immediately follows any of the other quantifiers (*, +, ?, {<i>n</i>}, {<i>n</i>,}, {<i>n</i>,<i>m</i>}),
+the matching pattern is non-greedy. A non-greedy pattern matches as
+little of the searched string as possible, whereas the default greedy
+pattern matches as much of the searched string as possible. For
+example, in the string "oooo", 'o+?' matches a single "o", while 'o+'
+matches all 'o's. </p></td></tr><tr><td><p>
+                    .
+                </p></td><td><p>
+Matches any single character except "\n". To match any character
+including the '\n', use a pattern such as '[\s\S]. </p></td></tr><tr><td><p>
+                    (<i>pattern</i>)
+                </p></td><td><p>
+                    Matches <i>pattern</i> and captures the match. The captured match can be retrieved from the resulting Matches collection, using the <b>SubMatches</b> collection in VBScript or the <b>$0$9</b> properties in JScript. To match parentheses characters ( ), use '\(' or '\)'.
+                </p></td></tr><tr><td><p>
+                    (?:<i>pattern</i>)
+                </p></td><td><p>
+                    Matches <i>pattern</i>
+but does not capture the match, that is, it is a non-capturing match
+that is not stored for possible later use. This is useful for combining
+parts of a pattern with the "or" character (|). For example,
+'industr(?:y|ies) is a more economical expression than
+'industry|industries'. </p></td></tr><tr><td><p>
+                    (?=<i>pattern</i>)
+                </p></td><td><p>
+                    <u>Positive</u> lookahead matches the search string at any point where a string matching <i>pattern</i>
+begins. <br />
+This is a non-capturing match, that is, the match is not
+captured for possible later use. For example 'Windows
+(?=95|98|NT|2000)' matches "Windows" in "Windows 2000" but not
+"Windows" in "Windows 3.1". <br />
+Lookaheads do not consume characters, that
+is, after a match occurs, the search for the next match begins
+immediately following the last match, not after the characters that
+comprised the lookahead. </p></td></tr><tr><td><p>
+                    (?!<i>pattern</i>)
+                </p></td><td><p>
+                    <u>Negative</u> lookahead matches the search string at any point where a string <u>not</u> matching <i>pattern</i>
+begins. 
+<br />
+This is a non-capturing match, that is, the match is not
+captured for possible later use. For example 'Windows
+(?!95|98|NT|2000)' matches "Windows" in "Windows 3.1" but does not
+match "Windows" in "Windows 2000". <br />
+Lookaheads do not consume
+characters, that is, after a match occurs, the search for the next
+match begins immediately following the last match, not after the
+characters that comprised the lookahead. </p></td></tr><tr><td><p> <i>x</i>|<i>y</i> </p></td><td><p>
+                    Matches either <i>x</i> or <i>y</i>. For example, 'z|food' matches "z" or "food". '(z|f)ood' matches "zood" or "food". 
+                </p></td></tr><tr><td><p>
+                    [<i>xyz</i>]
+                </p></td><td><p>
+A character set. Matches any one of the enclosed characters. For
+example, '[abc]' matches the 'a' in "plain". </p></td></tr><tr><td><p>
+                    [^<i>xyz</i>]
+                </p></td><td><p>
+A negative character set. Matches any character not enclosed. For
+example, '[^abc]' matches the 'p' in "plain". </p></td></tr><tr><td><p>
+                    [<i>a-z</i>]
+                </p></td><td><p>
+A range of characters. Matches any character in the specified range.
+For example, '[a-z]' matches any lowercase alphabetic character in the
+range 'a' through 'z'. </p></td></tr><tr><td><p>
+                    [^<i>a-z</i>]
+                </p></td><td><p>
+A negative range characters. Matches any character not in the specified
+range. For example, '[^a-z]' matches any character not in the range 'a'
+through 'z'. </p></td></tr><tr><td><p>
+                    \b
+                </p></td><td><p>
+Matches a word boundary, that is, the position between a word and a
+space. For example, 'er\b' matches the 'er' in "never" but not the 'er'
+in "verb". </p></td></tr><tr><td><p>
+                    \B
+                </p></td><td><p>
+                    Matches a nonword boundary. 'er\B' matches the 'er' in "verb" but not the 'er' in "never". 
+                </p></td></tr><tr><td><p>
+                    \c<i>x</i> </p></td><td><p>
+                    Matches the control character indicated by <i>x</i>. For example, \cM matches a Control-M or carriage return character. The value of <i>x</i> must be in the range of A-Z or a-z. If not, c is assumed to be a literal 'c' character. 
+                </p></td></tr><tr><td><p>
+                    \d
+                </p></td><td><p>
+                    Matches a digit character. Equivalent to [0-9]. 
+                </p></td></tr><tr><td><p>
+                    \D
+                </p></td><td><p>
+                    Matches a nondigit character. Equivalent to [^0-9]. 
+                </p></td></tr><tr><td><p>
+                    \f
+                </p></td><td><p>
+                    Matches a form-feed character. Equivalent to \x0c and \cL.
+                </p></td></tr><tr><td><p>
+                    \n
+                </p></td><td><p>
+                    Matches a newline character. Equivalent to \x0a and \cJ.
+                </p></td></tr><tr><td><p>
+                    \r
+                </p></td><td><p>
+                    Matches a carriage return character. Equivalent to \x0d and \cM.
+                </p></td></tr><tr><td><p>
+                    \s
+                </p></td><td><p>
+Matches any white space character including space, tab, form-feed, and
+so on. Equivalent to [&nbsp;\f\n\r\t\v]. </p></td></tr><tr><td><p>
+                    \S
+                </p></td><td><p>
+                    Matches any non-white space character. Equivalent to [^&nbsp;\f\n\r\t\v]. 
+                </p></td></tr><tr><td><p>
+                    \t
+                </p></td><td><p>
+                    Matches a tab character. Equivalent to \x09 and \cI.
+                </p></td></tr><tr><td><p>
+                    \v
+                </p></td><td><p>
+                    Matches a vertical tab character. Equivalent to \x0b and \cK.
+                </p></td></tr><tr><td><p>
+                    \w
+                </p></td><td><p>
+                    Matches any word character including underscore. Equivalent to '[A-Za-z0-9_]'. 
+                </p></td></tr><tr><td><p>
+                    \W
+                </p></td><td><p>
+                    Matches any nonword character. Equivalent to '[^A-Za-z0-9_]'. 
+                </p></td></tr><tr><td><p>
+                    \x<i>n</i> </p></td><td><p>
+                    Matches <i>n</i>, where <i>n</i>
+is a hexadecimal escape value. Hexadecimal escape values must be
+exactly two digits long. For example, '\x41' matches "A". '\x041' is
+equivalent to '\x04' &amp; "1". Allows ASCII codes to be used in
+regular expressions. </p></td></tr><tr><td><p>
+                    \<i>num</i> </p></td><td><p>
+                    Matches <i>num</i>, where <i>num</i>
+is a positive integer. A reference back to captured matches. For
+example, '(.)\1' matches two consecutive identical characters. </p></td></tr><tr><td><p>
+                    \<i>n</i> </p></td><td><p>
+                    Identifies either an octal escape value or a backreference. If \<i>n</i> is preceded by at least <i>n</i> captured subexpressions, <i>n</i> is a backreference. Otherwise, <i>n</i> is an octal escape value if <i>n</i> is an octal digit (0-7).
+                </p></td></tr><tr><td><p>
+                    \<i>nm</i> </p></td><td><p>
+                    Identifies either an octal escape value or a backreference. If \<i>nm</i> is preceded by at least <i>nm</i> captured subexpressions, <i>nm</i> is a backreference. If \<i>nm</i> is preceded by at least <i>n</i> captures, <i>n</i> is a backreference followed by literal <i>m</i>. If neither of the preceding conditions exist, \<i>nm</i> matches octal escape value <i>nm</i> when <i>n </i>and <i>m</i> are octal digits (0-7).
+                </p></td></tr><tr><td><p>
+                    \<span class="parameter" sdata="paramReference">nml</span> </p></td><td><p>
+                    Matches octal escape value <i>nml </i>when <i>n</i> is an octal digit (0-3) and <i>m</i> and <i>l</i> are octal digits (0-7).
+                </p></td></tr><tr><td><p>
+                    \u<i>n</i> </p></td><td><p>
+                    Matches <i>n</i>, where <i>n</i> is a Unicode character expressed as four hexadecimal digits. For example, \u00A9 matches the copyright symbol (©).
+                </p></td></tr></tbody></table>
+  <p>&nbsp;</p>
+  <p class="CollapseRegionLink">Replacement MetaCharacters</p>
+  <p>Example data: &quot;Print 'Hello World';&quot; 
+              search pattern: &quot;(Hello)\s*(World)&quot;</p>
+  <div class="tableSection">
+    <table width="50%" frame="lhs">
+      <tbody>
+        <tr>
+          <th><p> Character </p></th>
+          <th><p> Description </p></th>
+        </tr>
+        <tr>
+          <td><p> $1-9 </p></td>
+          <td><p> Back reference<br />
+            <br />
+  Replace pattern: &quot;$2&quot; [-&gt;&quot;World&quot;]<br />
+              <br />
+              Note: $10, $11... is also possible</p>
+            </td>
+        </tr>
+        <tr>
+          <td><p> $+</p></td>
+          <td><p>Last back reference [-&gt;&quot;World&quot;]</p>
+            <p>              Note: Regarding the   example '$+' is the same as '$2'.</p>
+            </td>
+        </tr>
+        <tr>
+          <td><p>$&amp;</p>
+            </td>
+          <td><p>MatchText [-&gt;&quot;Hello World&quot;]</p>
+            </td>
+        </tr>
+        <tr>
+          <td><p>$'</p>
+            </td>
+          <td><p>Text left from subject [-&gt;&quot;';&quot;]</p>
+            </td>
+        </tr>
+        <tr>
+          <td><p>$`</p>
+            </td>
+          <td><p>Text right from subject [-&gt;&quot;Print '&quot;]</p>
+            </td>
+        </tr>
+        <tr>
+          <td><p>$_</p>
+            </td>
+          <td><p>Whole subject [-&gt;&quot;Print 'Hello World';&quot;]</p>
+            </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </div>
+  <p>&nbsp;</p>
+</div></div></div></div></div>  </div></div></div>
+      <div id="ctl00_WikiViewer1_cc" class="wv_cc">
+	
+    <div id="ctl00_WikiViewer1_ccContainer">
+		<div class="wv_ccTopicTags">
+			<span class="wv_ccTitle">Tags:&nbsp;</span><span>regularexpression&nbsp;</span>
+		</div>
+         
+        <div class="wv_cclogo">
+	        <img id="ctl00_WikiViewer1_WikiLogo" src="regexp/wiki.gif" style="border-width: 0px;">
+        </div>
+        <div class="wv_cch">
+           <span id="ctl00_WikiViewer1_CC_Title">Community Content</span>
+        </div>
+    
+	</div>
+
+</div>
+<div id="ctl00_WikiViewer1_wikiItems">
+	<div class="wv_ccItems">
+		<table class="wv_ccItemHeader" width="100%"><tbody><tr><td align="left"><span class="wv_ccTitle">Correction - metacharacters</span></td><td>&nbsp;&nbsp;&nbsp;</td><td align="right"><span class="wv_ccEdInfo">Last Edit 9:01 PM by Mr. Raymond Kenneth Petry&nbsp;&nbsp;&nbsp;</span></td></tr></tbody></table><div class="wv_ccText">
+			<strong>1. BUG: \s <u>does-not</u></strong> match all-possible types of spaces: eg. <strong>\s does not-match a rendered-&amp;nbsp; i.e. ignores \240</strong>.<br><br><strong>2. ENG. \B</strong> matches a <strong>[]word [non]boundary</strong>. 'er\B' matches the 'er' in "verb" but not the 'er' in "never". 
+		</div><div class="wv_ccAnnotationTags">
+			<span class="wv_ccTitle">Tags:&nbsp;</span><span></span>
+		</div>
+	</div>
+</div>
+</form>
+</body></html>

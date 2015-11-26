@@ -1,0 +1,85 @@
+whxapi.dll WinHex API DLL 12.1.0.0
+==================================
+
+Patches (WHX_Init):
+
+#1  don't run winhex.exe with "WinHex API" commandline parameter
+    (Param overwritten with 0x20)
+
+#2 Don't hide winhex / Run it 'normal'
+   
+   WinExec("winhex.exe", SW_SHOWNORMAL[1])    instead of
+   WinExec("winhex.exe", SW_HIDE[0])
+   00372512    PUSH    1
+   00372514    LEA     EAX, [EBP-108]
+   0037251A    PUSH    EAX
+   0037251B    CALL    <JMP.&kernel32.WinExec>
+
+#3 WHX_Init succeed if Winhex is running
+   jump to code after WinExec instead of the end (with retval -1)
+
+
+
+
+
+
+LRESULT __stdcall WHX_Init(WPARAM APIVer)
+{
+  LRESULT Ret; // esi@1
+  DWORD v2; // ebx@9
+  unsigned int v3; // eax@19
+  CHAR CmdLine; // [sp+Ch] [bp-108h]@7
+  HKEY hKey; // [sp+10Ch] [bp-8h]@4
+  DWORD cbData; // [sp+110h] [bp-4h]@6
+
+  Ret = -1;
+  if ( APIVer == 1 )
+  {
+      if ( (unsigned __int8)IsRunning() )
+        goto WH_Started;
+
+      if ( RegOpenKeyA(HKEY_CURRENT_USER, "Software\\X-Ways AG\\WinHex", &hKey) )
+        RegOpenKeyA(HKEY_CURRENT_USER, "Software\\SF Soft\\WinHex", &hKey);
+      cbData = 255;
+
+      if ( RegQueryValueExA(hKey, "Path", 0, 0, &Data, &cbData) )
+      {
+        lstrcpyA(&CmdLine, "winhex.exe");
+      }
+      else
+      {
+        lstrcatA((LPSTR)&Data, "\\winhex.exe");
+        lstrcpyA(&CmdLine, (LPCSTR)&Data);
+      }
+      RegCloseKey(hKey);
+      v2 = GetTickCount();
+      lstrcatA(&CmdLine, "             ");
+      if ( (signed int)WinExec(&CmdLine, SW_SHOWNORMAL) >= 32 )
+      {
+WH_Started:
+
+        while ( !(unsigned __int8)IsRunning() && (signed int)(GetTickCount() - v2) < 3000 )
+          Wait(0x32u);
+        if ( hWnd )
+        {
+          lpBaseAddress = MapTmpFile();
+          if ( lpBaseAddress )
+            Ret = SendMessageA(hWnd, 0x465u, APIVer, 0);
+          if ( Ret < 1 )
+          {
+            SendMessageA(hWnd, 0x466u, 0, 0);
+            UnMapTmpFile();
+          }
+          v3 = SendMessageA(hWnd, 0x464u, 0, 0);
+          LWord = v3;
+          hWord = Get_hWord(v3);
+        }
+      }
+    }
+  }
+  else
+  {
+    Ret = -2;
+  }
+  return Ret;
+}

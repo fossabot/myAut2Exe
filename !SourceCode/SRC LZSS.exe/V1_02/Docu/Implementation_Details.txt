@@ -1,0 +1,178 @@
+
+Implementation Details for the LZSS v1.4x routines
+==================================================
+
+Jonathan Bennett (jon@hiddensoft.com)
+=====================================
+
+This file gives a description of the more technical workings of the compression
+algorithm above.
+
+LZSS compression is used with a huffman backend.  That is, all literals, match 
+lengths and match offsets are coded with huffman.
+
+Compression performance is around the PKZIP/WINZIP level for most files and a 
+little better on large files.  Tests on the Calgary Corpus give results of 
+2.55bpb which is not bad seeing as I only just barely understand this stuff :)
+
+IF YOU HAVE IMPROVEMENTS OR SUGGESTIONS PLEASE CONTACT ME - Sources like zlib
+are pretty much gibberish to me... :(  Also note that my code is very slow
+compared to zip/zlib but on the other hand they are well commented and very
+easy to use.  I use them myself for my AutoIt project as the decompression
+code is only a couple of KB and works "well enough".  One thing I can't
+work out is apparently zlib only uses 32KB for hash tables, I'm using about
+600KB!  I'd like to know how that is done...
+
+Now, onto the details of my code:
+
+
+LZSS
+----
+A sliding window of 65535 bytes is used with a maximum match length of 511 bytes.
+A ring/circular buffer is used of 128KB - this is done so that quick access to 
+the data is possible using an AND mask of 128KB-1 (0x1FFFF).  The minium match
+length is 3.
+
+Each "loop" the lookahead buffer is filled (511+min match len bytes).
+
+A hash table is maintained for the previous 65535 bytes, 3 bytes are used for 
+the "hash" key.  Hash entries are organised into linked lists up to a maximum
+chain limit defined by the "compression level".  The hash tables are not
+sorted in any way but when a new hash is inserted it is done so that when you
+re-read the hashes you get the most recent values first.  When a value leaves
+the sliding window it is deleted from the hash table.
+
+To find a LZSS match the current 3 bytes are hashed and then compared with the
+entries in the hash table (newest first) and the longest match is selected - if
+two matches have the same match length then the first one found (most recent) is
+used to try and keep the offset size small and therefore help in the huffman 
+coding.
+
+Then an addtional match is attempted at the current position +1 called a "lazy
+evaluation" - if this gives a better match then the original match is discarded
+(and just the literal byte written).
+
+
+Huffman
+-------
+The literals, match lengths and offsets are then coded using huffman.  The usual
+LZSS "flags" to indicate a literal or a match are no longer required using this
+method.
+
+Two huffman trees are used, one for literals and match lengths and one for offsets.
+As far as I can work out I used a similar method as zlib the only difference
+being that I allow for offsets of 65535 and lengths of 511.  The tables used are
+below:
+
+
+LITERAL & LENGTHS TABLE
+
+Code	More Bits?	Length
+
+----	----------	------
+0-255   Just literal bytes
+
+256		0			0
+257		0			1
+258		0			2
+259		0			3
+260		0			4
+261		0			5
+262		0			6
+263		0			7
+
+264		1			8-9				
+265		1			10-11
+266		1			12-13
+267		1			14-15
+
+268		2			16-19			
+269		2			20-23
+270		2			24-27
+271		2			28-31
+
+272		3			32-39			
+273		3			40-47
+274		3			48-55
+275		3			56-63
+
+276		4			64-79
+277		4			80-95
+278		4			96-111
+279		4			112-127
+
+280		5			128-159
+281		5			160-191
+282		5			192-223
+283		5			224-255
+
+284		6			256-319
+285		6			320-383
+286		6			384-447
+287		6			448-511
+
+
+OFFSET TABLE
+
+Code	More Bits?	Offset
+----	----------	------
+0		0			0
+1		0			1
+2		0			2
+3		0			3
+
+4		1			4-5
+5		1			6-7
+
+6		2			8-11
+7		2			12-15
+
+8		3			16-23
+9		3			24-31
+
+10		4			32-47
+11		4			48-63
+
+12		5			64-95
+13		5			96-127
+
+14		6			128-191
+15		6			192-255
+
+16		7			256-383
+17		7			384-511
+
+18		8			512-767
+19		8			768-1023
+
+20		9			1024-1535
+21		9			1536-2047
+
+22		10			2048-3071
+23		10			3072-4095
+
+24		11			4096-6143
+25		11			6144-8191
+
+26		12			8192-12287
+27		12			12288-16383
+
+28		13			16384-24575
+29		13			24576-32767
+
+30		14			32768-49151
+31		14			49152-65535
+
+
+One thing I couldn't work out was how to store the huffman tables in the compressed data.
+So instead I just made the compressor regenerate the tables based on previous
+input every ~4096 bytes, the decompressor does the same and we end up with a 
+crude "adaptive huffman" routine.  It seems to work pretty well except for small
+files as it takes some time to get up to speed.
+
+
+I hope that makes sense how the current sources work.  Drop me a mail if you want
+any more specifics.
+
+Jon.
+

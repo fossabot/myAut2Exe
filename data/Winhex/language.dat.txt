@@ -1,0 +1,20 @@
+language.dat
+
+0012FCCC    
+06BF   
+   C32C  #0
+   E037  #1   
+   7267  #2
+   65F1  #3   
+   D9A5  #4   
+   658D  #5   
+   D0C6  #6
+
+
+English
+German
+French
+Spanish
+Portuguese 
+Italian
+Norwegian

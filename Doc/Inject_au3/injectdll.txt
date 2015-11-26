@@ -1,0 +1,43 @@
+injectdll 1.0
+=============
+
+What is this good for?
+
+Well to get 'virtual files' that were bundled into a exe with Enigma or Themida
+let's there is a 
+DecompileMe.exe
+  Au3-Script
+  ...
+  DllCall("Project2.dll", "int", "AddIntegers", "int", 666, "int", 2)
+  ...
+  Project2.dll is such a 'virtual files' - it's not written to disk, but
+  inside the DecompileMe.exe process it's available. 
+  (Since API-calls like CreateFile or  LoadLibrary are hooked)
+
+So the idea now is, to load some program code for dumping this file(s) into the 
+DecompileMe.exe process. 
+That easiest way to do that,is by injecting a dll into the DecompileMe.exe process. 
+(Just invoke a LoadLibraryA('my.Dll') inside the target Process via CreateRemoteThread)
+
+How it's done?
+
+AutoIt3.dll is the AutoIt3.exe with the Dll-flag set in the header.
+(use ExeToDll.au3 to 'create' other dll's/ test them with regsvr32.exe <my>.dll before use!)
+
+1. Run "DecompileMe.exe MyDumpScript.au3"
+   DecompileMe.exe will ignore the commandline parameter 'MyDumpScript.au3' 
+   ^- however it'll be set. :)
+   
+2.  injectdll.exe AutoIt3.dll -> DecompileMe.exe
+
+3. AutoIt3.dll will now run inside DecompileMe.exe and use the commandline parameter(s) of DecompileMe.exe
+   ... and so it'll run MyDumpScript.au3
+
+4. MyDumpScript.au3 has also access to the virtual files
+ 
+ Notes:
+  * copy Include\*.au3 into the dir with DecompileMe.exe incase you make use of #include
+  * Some GUI-functions like OpenFileDialog are not working properly
+  * use ExeToDll.au3 to create an 'own' injectdll
+  * maybe suspend targetproces before injecting to disable possible dll-incjecting code
+   (so just 'our' thread will run inside)

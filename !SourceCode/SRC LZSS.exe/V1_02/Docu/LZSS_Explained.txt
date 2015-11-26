@@ -1,0 +1,321 @@
+
+The LZSS Algorithm
+==================
+
+Badly explained by me, Jonathan Bennett (jon@hiddensoft.com)
+============================================================
+
+View with a fixed width font.
+-----------------------------
+
+
+LZSS
+====
+
+The LZ77 algorithm was invented in 1977 by Abraham Lempel and Jacob Ziv, in
+1982 James Storer and Thomas Szymanski made a small (but useful) change to
+this algorithm to improve the compression.  This is the modified (and most
+widely used) version of the LZ77 routine and was called LZSS.  Often
+when people write about LZ77 they are actually referring to LZSS.
+
+
+
+How does it work
+================
+As with many compression routines, the theory is very simple, but the
+implementation is a little tricky.  I hope you understand bits and bytes
+before we go further...
+
+LZSS output consists of either a "LITERAL" byte or a (offset, len) pair.
+A literal byte is simply the input byte copied directly to the output.
+A (offset, len) pair says that if we go BACK in our input data a distance
+of "offset" we will find a match of length "len" bytes.
+But, how can we tell what is a literal byte and what is an (offset, len)
+pair?  This is where the "SS" in "LZSS" comes in.  We use a flag
+in the output to tell the two cases apart, if the flag is "0" the next
+byte is a literal, if the flag is "1" what follows is a (offset, len)
+pair.
+
+Here is an encoding example that should be clearer than any poorly worded
+explanation. (* indicates the current position we are looking at in the
+input data)
+
+
+Input Data = "ABCDABCA"
+              *
+-  We start at the first byte "A".  Have we seen this before?  No.  Encode
+   it as a literal byte "0" (to indicate literal) followed by the data "A"
+
+Output data = 0 "A"
+
+
+Input Data = "ABCDABCA"
+               *
+- Next byte is "B" have we seen this before?  No.  Encode it as literal
+
+Output data = 0 "A" 0 "B"
+
+
+Input Data = "ABCDABCA"
+                *
+- Next byte is "C" have we seen this before?  No.  Encode it as literal
+
+Output data = 0 "A" 0 "B" 0 "C"
+
+
+Input Data = "ABCDABCA"
+                 *
+- Next byte is "D" have we seen this before?  No.  Encode it as literal
+
+Output data = 0 "A" 0 "B" 0 "C" 0 "D"
+
+
+Input Data = "ABCDABCA"
+                  *
+- Next byte is "A" have we seen this before?  YES.  OK, when did we last
+  see an "A" previous to this?  It was 4 bytes ago (offset=4).  OK, how
+  similar is the data 4 bytes ago to the current data?  Well, three bytes
+  are the same "ABC".  So have encode this as "1" (to indicate a match"
+  followed by (4, 3).  We then SKIP ahead in the data by however many
+  bytes we matched.
+
+Output data = 0 "A" 0 "B" 0 "C" 0 "D" 1 4 3
+
+
+Input Data = "ABCDABCA"
+                     *
+- Next byte is "A" have we seen this before?  YES.  3 bytes ago.  But this
+  time only 1 byte can be matched.  Encode it as "1" followed by (3, 1).
+
+Output data = 0 "A" 0 "B" 0 "C" 0 "D" 1 (4,3) 1 (3,1)
+
+
+And folks, that is it.  Simple, eh?  "But", I hear you cry, "surely this means
+that the output data will actually take up more space than the input?!".  Yes,
+yes it will.  This is where we have to be sneaky when implementing the routine.
+
+
+
+Window and Match Len
+====================
+
+To make the system work we need to place some rules on:
+- The size of our "flag" (to indicate a "literal" or "match")
+- How far we can look back in the data for a match
+- The maximum number of bytes we can match
+
+So, lets do that.  The first part is easy.  We only need to indicate two states
+with our flag, a "literal" or "match".  So you will only use A SINGLE BIT for this.
+
+This is when people start to get nervous.  If we do this then we won't always be
+writing out whole bytes, we will be writing out little bits.  Get used to it.  Before
+we can do any real compression, we need to code functions for reading and writing
+variable numbers of bits from/to a data stream.  They are the cornerstone of all
+compression, code your bit-operation functions once and use them again and again!
+
+So, if we want to output a literal byte of value 153 (binary=10011001) our bit
+output will look like "0 10011001".
+
+Stay with it...  Obviously, if we just output literals this will INCREASE the size
+of our input by 1 bit for every 8.  Let's hope we can reclaim that loss by matching!
+
+
+The second part is to limit the bit size of our (offset, len) pair.  For example,
+let's limit the "offset" to use 4 bits.  What is the biggest number we can fit into
+4 bits?  It's "1111-" = 31.  So if we use 4 bits for the "offset" we can only specifiy
+offsets in the range 0-31.  We do the same with the "len".  Let's use 3 bits for
+the "len", biggest range with 3 bits is 0-7.  The output of a match followed by
+(4,3) would now look like this "1 0100 011".  That is 1 bit for the flag, followed
+by 4 bits for the "offset", followed by 3 bits for the "len".
+
+By know you should be able to see that this compression may just work :)
+
+Let's do a full on bit by bit example.
+
+Our input is "1231231", in binary this is 56 bits long:
+00000001 00000010 00000011 00000001 00000010 00000011 00000001
+   1        2        3        1        2        3        1
+
+Let's encode it!
+
+
+Input Data = "1231231"
+              *
+-  We start at the first byte "1".  Have we seen this before?  No.  Encode as
+   a literal.
+
+Output data =
+0 00000001
+
+
+Input Data = "1231231"
+               *
+-  Next byte is "2".  Have we seen this before?  No.  Encode as a literal.
+
+Output data =
+0 00000001 0 00000010
+
+
+Input Data = "1231231"
+                *
+-  Next byte is "3".  Have we seen this before?  No.  Encode as a literal.
+
+Output data =
+0 00000001 0 00000010 0 00000011
+
+
+Input Data = "1231231"
+                 *
+-  Next byte is "1".  Have we seen this before?  Yes.  When?  3 bytes ago.  How
+   many bytes can we match?  3 bytes match "123".  Output the flag "1" (1bit)
+   followed by the offset "3" (4 bits) followed by the len "3" (3bits).  Now
+   skip ahead "len" bytes in the data
+
+Output data =
+0 00000001 0 00000010 0 00000011 1 0011 011
+
+
+Input Data = "1231231"
+                    *
+-  Next byte is "1".  Have we seen this before?  Yes.  When?  3 bytes ago.  How
+   many bytes can we match?  1 bytes match.  Output the flag "1" (1bit)
+   followed by the offset "3" (4 bits) followed by the len "1" (3bits).
+
+Output data =
+0 00000001 0 00000010 0 00000011 1 0011 011 1 0011 001
+
+
+So, input data was 56 bits long, and the output data is 43 bits long.  Not bad
+for such a small amount of data.
+
+
+Decompression is simply a matter of reversing this and is very fast due to its
+simplicity.
+
+
+
+Minimum Match Length
+====================
+
+In practice, we use around 12 bits (0-4095) for the offset and 4 bits (0-15)
+for the match length.  This means that a (offset, len) pair takes up 17 bits!
+(1 bit for the flag remember).  Ouch.  This means that we need to have a
+"minimum match length" to keep things efficient, that is, sometime we may
+choose to store literal bytes even though there is a match somewhere!  In this
+example each byte uses 9 bits to store literally.  Hmmm, we need 17 bits to
+store a (offset, len) pair so it would be a waste to match single bytes.  2
+bytes would need 18 bits to store literally, this WOULD be efficient to replace
+with a match.  So for the offset, len values given above to be efficient, we
+need to only store a match for patterns of 2 bytes or more.
+
+A useful side effect of this minimum match length is this:
+Given that we will never have a "len" of 0 or 1 why don't we adjust the range?
+Instead of a match len range of 0-15, we can use 2-17!  i.e. subtract the
+"min match len" from the "len" before we write it out and just add it back on
+when we read it back in!  The same goes for the offset, now we have 2-4097
+instead!  This actually improves the compression ratio a little. :) :)
+
+
+
+Finding the Longest Match
+=========================
+
+In our examples so far, we chosen the first "match" we come across.  This is
+all very well, but we may be missing a possible longer (more compresson)
+match!  To get around this we should find all the possible matches in our
+"window" and choose the longest one.  This involves a lot of searching and
+is very slow.  This method is called "greedy parsing".  To give you an idea
+of how slow, with a window length of 4096 my own (initial) LZSS routine took almost
+2 minutes to compress a 2MB file.  Yikes.  99% of all the time in a LZSS
+algorithm is taken up with finding longest matches :(
+
+
+
+Speeding Up Compression
+=======================
+
+We need a quick way of finding matches.  There are many ways I've come across
+while researching this:
+- hash tables
+- binary trees
+- tries (?)
+
+I was chicken and chose to look at the simplest.  Hash tables.
+
+
+Hash Tables
+-----------
+
+A hash is simply a number that describes a group of other numbers.  That is
+you take your data that you want to match (usually of length "min match length"
+bytes in the LZSS world) run it through a "magic" function and you get your
+"hash".  A minor problem is that the same hash could describe different data,
+but this isn't too much of an issue as if two hashes are different then you can
+be 100% sure that the data that the hashes describe are NOT equal.
+
+This is the function I found on the net (C code):
+For those that don't know C, << is shift left, ^ is XOR, and & is AND
+
+UINT nHash = ((40543*((((char1<<4)^char2+1])<<4)^char3))>>4) & 0xFFF;
+
+This function will take 3 unsigned characaters (bytes) and produce a hash of
+those bytes.
+The function gives the values 0-4095
+
+Another one is:
+UINT nHash = ((((char1<<5)+char2)<<5)+char3) & (0xFFFF)
+This function gives the values 0-65535
+
+Another (from lzp/Arturo San Emeterio's web page):
+ hash_index = byte_1
+ hash_index XOR (byte_2 shifted to the left 7 times)
+ hash_index XOR (byte_3 shifted to the left 11 times)
+ hash_index AND 1111111111111111b
+
+UINT nHash = ((char1 ^ (char2<<7)) ^ char3) & 0xffff
+This function gives the values 0-65535
+
+
+
+As we go through our data, we just hash each set of 3 bytes and store them in
+a table.  When we come to search for 3 bytes, we just hash them and then look
+in our table for matches.  We then check that the data _actually_ matches what
+we are looking for (remember the same hash has a chance of describing different
+data so we need to check).
+
+As it stands you can only have one entry per hash value in the table, this means
+that we are missing data in the table.  You need to implement linked lists in order
+to keep a record of multiple data items for the same hash.  The maximum length of
+this linked list has an impact on memory used and speed during compression.
+Experiment! :)
+
+
+
+Lazy Evaluation (improving compression further)
+===============================================
+
+OK, this is pretty crazy, but bear with me...
+
+When we find our longest match, we store it.  Right?  Wrong.
+
+Say if our longest match was 4 bytes.  We store it, and then skip the next 4 bytes
+and start again.  BUT, what-if in those bytes we've missed there was a really good
+match of 15 bytes?  We've missed out!  Lazy evaluation just involves making sure
+that there wouldn't have been a better match in the next few bytes before we commit
+to our initial longest match.  Apparently this is an example of LFF or Longest
+Fragment First.  Indeed...
+
+
+
+More
+====
+There are other techniques for improving compression with the LZSS routines but
+I don't understand them yet -- I'll update this file when I do :)
+
+
+
+I hope this was in some way useful.  Check out my "journey" through this in the
+attached C source code.
+
+Best wishes,
+Jon.

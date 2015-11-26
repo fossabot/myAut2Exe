@@ -1,0 +1,486 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML xmlns:MSHelp="http://msdn.microsoft.com/mshelp" DIR="LTR"><HEAD>
+<META HTTP-EQUIV="Content-Type" Content="text/html; charset=Windows-1252">
+<TITLE>Icons in Win32</TITLE>
+<xml>
+<MSHelp:TOCTitle Title="Icons in Win32"/>
+<MSHelp:RLTitle Title="Icons in Win32"/>
+<MSHelp:Keyword Index="A" Term="msdn_icons"/>
+<MSHelp:Keyword Index="K" Term="icons, Win32"/>
+<MSHelp:Keyword Index="K" Term="Win32, icons in"/>
+<MSHelp:Keyword Index="A" Term="msdn_icons"/>
+<MSHelp:Attr Name="DocSet" Value="kbmsdn"/>
+<MSHelp:Attr Name="HostCPU" Value="kbx86"/>
+<MSHelp:Attr Name="HostOS" Value="Windows"/>
+<MSHelp:Attr Name="HostOSVers" Value="kbWinOS"/>
+<MSHelp:Attr Name="Locale" Value="kbEnglish"/>
+<MSHelp:Attr Name="Media" Value="kbText"/>
+<MSHelp:Attr Name="TargetCPU" Value="kbx86"/>
+<MSHelp:Attr Name="TargetOSVers" Value="kbWinOS"/>
+<MSHelp:Attr Name="TopicType" Value="kbArticle"/>
+<MSHelp:Attr Name="Status" Value="New"/>
+<MSHelp:Attr Name="TargetOS" Value="Windows"/>
+</xml>
+<META name="rtfFileName" content="icons.rtf">
+<!--CSS_START-->
+<SCRIPT SRC="ms-help:/../shared/scripts/dtuelink.js"></SCRIPT>
+<!--CSS_END--><META NAME="Abstract" CONTENT="This article describes, in detail, the format and use of icons in 32-bit Windows. (13 printed pages)">
+<META NAME="Author" CONTENT="John Hornick">
+<META NAME="msdnID" CONTENT="_418185">
+
+<SCRIPT SRC="MS-HELP:/../commoner/samp/smplmgr.js"></SCRIPT>
+</HEAD>
+<body topmargin=0 id="bodyID" class = "dtBODY"><!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+<div id="bannerrow1">
+<TABLE CLASS="bannerparthead" CELLSPACING=0>
+<TR ID="hdr">
+<TD CLASS="runninghead" nowrap>Windows&nbsp;User&nbsp;Interface&nbsp;Technical&nbsp;Articles</TD>
+<TD CLASS="product" nowrap>&nbsp;</TD>
+</TR>
+</TABLE>
+</div>
+<div id="TitleRow">
+<H1 class="dtH1"><A NAME="msdn_icons"></A>Icons in Win32</H1>
+</div></div>
+<!--NONSCROLLING BANNER END-->
+<DIV id="nstext" valign="bottom"><DIV id="smpMgrCell" style="width:230px;float:right"></DIV>
+<P>John Hornick <BR>
+Microsoft Corporation</P>
+
+<P>Created: September 29, 1995</P>
+
+<P><I>John is a Support Engineer in Product Support Services, Windows Developer Support.</I></P>
+
+<P>Download the sample code for this article from the <A HREF="http://msdn.microsoft.com/code/sample.asp?url=/msdn-files/026/002/707/msdncompositedoc.xml">MSDN Code Center</A>.</P>
+
+<H2 class="dtH1">Abstract</H2>
+
+<P>This article describes, in detail, the format and use of icons in 32-bit Windows. The following topics are covered; the format of icon resources in ICO, DLL and EXE files, the format of icon images in memory, Windows' use of icons, Windows' selection of an icon image from an icon resource, and the APIs provided to manipulate icon images. To follow the discussion, the reader should be familiar with Device Independent Bitmaps (DIBs) and their format. For more information about DIBs, please refer to the following sources:
+
+<UL type="disc">
+	<LI>Platform SDK help for the BITMAPINFO structure</li>
+
+	<LI>Knowledge Base article Q81498 SAMPLE: DIBs and Their Uses</li>
+
+	<LI>Knowledge Base article Q94326 SAMPLE: 16 and 32 Bits-Per-Pel Bitmap Formats</li>
+</UL>
+
+<P>Sample code dealing with some of the topics in this article is available in the Platform SDK sample tree in the IconPro project.</P>
+
+<BLOCKQUOTE class="dtBlock">
+<b class="le">Disclaimer</b><CODE>&nbsp;&nbsp;&nbsp;</CODE>Internal details discussed in this article are subject to change without notice in future versions of Windows.</BLOCKQUOTE>
+
+<H2 class="dtH1">Introduction</H2>
+
+<P>Icons are a varied lot&#0151;they come in many sizes and color depths. A single icon resource&#0151;an ICO file, or an icon resource in an EXE or DLL file&#0151;can contain multiple icon images, each with a different size and/or color depth. Windows 95 and future versions of Windows NT (collectively referred to as "Windows" from here on) extract the appropriate size/color depth image from the resource depending on the context of the icon's use. Windows also provides a collection of APIs for accessing and displaying icons and icon images.</P>
+
+<H2 class="dtH1">What's in an Icon?</H2>
+
+<P>An icon resource can contain multiple icon images. For example, one icon resource&#0151;in this case, a single .ICO file&#0151;can contain images in several sizes and color depths:</P>
+<div class="tablediv"><table cellspacing="0" class="dtTABLE">
+
+<TR VALIGN="top">
+<TD width=24%>
+<P class="fig"><CODE><IMG SRC="icons_1.gif" ALT="" BORDER=0></CODE></P>
+</TD>
+<TD width=23%>
+<P class="fig"><CODE><IMG SRC="icons_2.gif" ALT="" BORDER=0></CODE></P>
+</TD>
+<TD class="fig" width=53%><CODE><IMG SRC="icons_3.gif" ALT="" BORDER=0></CODE></TD>
+</TR>
+
+<TR VALIGN="top">
+<TD width=24%>16 x 16&nbsp;&nbsp;16 colors</TD>
+<TD width=23%>32 x 32&nbsp;&nbsp;16 colors</TD>
+<TD width=53%>72 x 72&nbsp;&nbsp;256 colors</TD>
+</TR>
+</table></div>
+
+<H3 class="dtH1">The ICO File</H3>
+
+<P>An Icon file, which usually has the ICO extension, contains one icon resource. Given that an icon resource can contain multiple images, it is no surprise that the file begins with an icon directory:</P>
+
+<PRE class="code">typedef struct
+{
+    WORD           idReserved;   // Reserved (must be 0)
+    WORD           idType;       // Resource Type (1 for icons)
+    WORD           idCount;      // How many images?
+    ICONDIRENTRY   idEntries[1]; // An entry for each image (idCount of 'em)
+} ICONDIR, *LPICONDIR;
+</PRE>
+
+<P>The <B>idCount</B> member indicates how many images are present in the icon resource. The size of the <B>idEntries</B> array is determined by <B>idCount</B>. There exists one ICONDIRENTRY for each icon image in the file, providing details about its location in the file, size and color depth. The ICONDIRENTRY structure is defined as:</P>
+
+<PRE class="code">typedef struct
+{
+    BYTE        bWidth;          // Width, in pixels, of the image
+    BYTE        bHeight;         // Height, in pixels, of the image
+    BYTE        bColorCount;     // Number of colors in image (0 if &gt;=8bpp)
+    BYTE        bReserved;       // Reserved ( must be 0)
+    WORD        wPlanes;         // Color Planes
+    WORD        wBitCount;       // Bits per pixel
+    DWORD       dwBytesInRes;    // How many bytes in this resource?
+    DWORD       dwImageOffset;   // Where in the file is this image?
+} ICONDIRENTRY, *LPICONDIRENTRY;
+</PRE>
+
+<P>For each ICONDIRENTRY, the file contains an icon image. The <B>dwBytesInRes</B> member indicates the size of the image data. This image data can be found <B>dwImageOffset</B> bytes from the beginning of the file, and is stored in the following format:</P>
+
+<PRE class="code">typdef struct
+{
+   BITMAPINFOHEADER   icHeader;      // DIB header
+   RGBQUAD         icColors[1];   // Color table
+   BYTE            icXOR[1];      // DIB bits for XOR mask
+   BYTE            icAND[1];      // DIB bits for AND mask
+} ICONIMAGE, *LPICONIMAGE;
+</PRE>
+
+<P>The <B>icHeader</B> member has the form of a DIB BITMAPINFOHEADER. Only the following members are used: <B>biSize</B>, <B>biWidth</B>, <B>biHeight</B>, <B>biPlanes</B>, <B>biBitCount</B>, <B>biSizeImage</B>. All other members must be 0. The <B>biHeight</B> member specifies the combined height of the XOR and AND masks. The members of <B>icHeader</B> define the contents and sizes of the other elements of the ICONIMAGE structure in the same way that the BITMAPINFOHEADER structure defines a CF_DIB format DIB.</P>
+
+<P>The <B>icColors</B> member is an array of RGBQUADs. The number of elements in this array is determined by examining the <B>icHeader</B> member.</P>
+
+<P>The <B>icXOR</B> member contains the DIB bits for the XOR mask of the image. The number of bytes in this array is determined by examining the <B>icHeader</B> member. The XOR mask is the color portion of the image and is applied to the destination using the XOR operation after the application of the AND mask.</P>
+
+<P>The icAND member contains the bits for the monochrome AND mask. The number of bytes in this array is determined by examining the icHeader member, and assuming 1bpp. The dimensions of this bitmap must be the same as the dimensions of the XOR mask. The AND mask is applied to the destination using the AND operation, to preserve or remove destination pixels before applying the XOR mask.</P>
+
+<BLOCKQUOTE class="dtBlock">
+<b class="le">Note</b><CODE>&nbsp;&nbsp;&nbsp;</CODE>The <B>biHeight</B> member of the <B>icHeader</B> structure represents the combined height of the XOR and AND masks. Remember to divide this number by two before using it to perform calculations for either of the XOR or AND masks. Also remember that the AND mask is a monochrome DIB, with a color depth of 1 bpp.</BLOCKQUOTE>
+
+<P>The following is an incomplete code fragment for reading an .ICO file:</P>
+
+<PRE class="code">// We need an ICONDIR to hold the data
+pIconDir = malloc( sizeof( ICONDIR ) );
+// Read the Reserved word
+ReadFile( hFile, &amp;(pIconDir-&gt;idReserved), sizeof( WORD ), &amp;dwBytesRead, NULL );
+// Read the Type word - make sure it is 1 for icons
+ReadFile( hFile, &amp;(pIconDir-&gt;idType), sizeof( WORD ), &amp;dwBytesRead, NULL );
+// Read the count - how many images in this file?
+ReadFile( hFile, &amp;(pIconDir-&gt;idCount), sizeof( WORD ), &amp;dwBytesRead, NULL );
+// Reallocate IconDir so that idEntries has enough room for idCount elements
+pIconDir = realloc( pIconDir, ( sizeof( WORD ) * 3 ) +
+                              ( sizeof( ICONDIRENTRY ) * pIconDir-&gt;idCount ) );
+// Read the ICONDIRENTRY elements
+ReadFile( hFile, pIconDir-&gt;idEntries, pIconDir-&gt;idCount * sizeof(ICONDIRENTRY),
+          &amp;dwBytesRead, NULL );
+// Loop through and read in each image
+for(i=0;i&lt;pIconDir-&gt;idCount;i++)
+{
+  // Allocate memory to hold the image
+  pIconImage = malloc( pIconDir-&gt;idEntries[i].dwBytesInRes );
+  // Seek to the location in the file that has the image
+  SetFilePointer( hFile, pIconDir-&gt;idEntries[i].dwImageOffset, 
+                  NULL, FILE_BEGIN );
+  // Read the image data
+  ReadFile( hFile, pIconImage, pIconDir-&gt;idEntries[i].dwBytesInRes,
+            &amp;dwBytesRead, NULL );
+  // Here, pIconImage is an ICONIMAGE structure. Party on it :)
+  // Then, free the associated memory
+  free( pIconImage );
+}
+// Clean up the ICONDIR memory
+free( pIconDir );
+</PRE>
+
+<P>Complete code can be found in the Icons.C module of IconPro, in a function named <B>ReadIconFromICOFile</B>.</P>
+
+<H3 class="dtH1">DLL and EXE Files</H3>
+
+<P>Icons can also be stored in .DLL and .EXE files. The structures used to store icon images in .EXE and .DLL files differ only slightly from those used in .ICO files.</P>
+
+<P>Analogous to the ICONDIR data in the ICO file is the RT_GROUP_ICON resource. In fact, one RT_GROUP_ICON resource is created for each ICO file bound to the EXE or DLL with the resource compiler/linker. The RT_GROUP_ICON resource is simply a GRPICONDIR structure:</P>
+
+<PRE class="code">// #pragmas are used here to insure that the structure's
+// packing in memory matches the packing of the EXE or DLL.
+#pragma pack( push )
+#pragma pack( 2 )
+typedef struct 
+{
+   WORD            idReserved;   // Reserved (must be 0)
+   WORD            idType;       // Resource type (1 for icons)
+   WORD            idCount;      // How many images?
+   GRPICONDIRENTRY   idEntries[1]; // The entries for each image
+} GRPICONDIR, *LPGRPICONDIR;
+#pragma pack( pop )
+</PRE>
+
+<P>The <B>idCount</B> member indicates how many images are present in the icon resource. The size of the <B>idEntries</B> array is determined by <B>idCount</B>. There exists one GRPICONDIRENTRY for each icon image in the resource, providing details about its size and color depth. The GRPICONDIRENTRY structure is defined as:</P>
+
+<PRE class="code">#pragma pack( push )
+#pragma pack( 2 )
+typedef struct
+{
+   BYTE   bWidth;               // Width, in pixels, of the image
+   BYTE   bHeight;              // Height, in pixels, of the image
+   BYTE   bColorCount;          // Number of colors in image (0 if &gt;=8bpp)
+   BYTE   bReserved;            // Reserved
+   WORD   wPlanes;              // Color Planes
+   WORD   wBitCount;            // Bits per pixel
+   DWORD   dwBytesInRes;         // how many bytes in this resource?
+   WORD   nID;                  // the ID
+} GRPICONDIRENTRY, *LPGRPICONDIRENTRY;
+#pragma pack( pop )
+</PRE>
+
+<P>The <B>dwBytesInRes</B> member indicates the total size of the RT_ICON resource referenced by the <B>nID</B> member. <B>nID</B> is the RT_ICON identifier that can be passed to <B>FindResource</B>, <B>LoadResource</B> and <B>LockResource</B> to obtain a pointer to the ICONIMAGE structure (defined above) for this image.</P>
+
+<P>The following is an incomplete code fragment for reading icons from a .DLL or .EXE file:</P>
+
+<PRE class="code">// Load the DLL/EXE without executing its code
+hLib = LoadLibraryEx( szFileName, NULL, LOAD_LIBRARY_AS_DATAFILE );
+// Find the group resource which lists its images
+hRsrc = FindResource( hLib, MAKEINTRESOURCE( nId ), RT_GROUP_ICON );
+// Load and Lock to get a pointer to a GRPICONDIR
+hGlobal = LoadResource( hLib, hRsrc );
+lpGrpIconDir = LockResource( hGlobal );
+// Using an ID from the group, Find, Load and Lock the RT_ICON
+hRsrc = FindResource( hLib, MAKEINTRESOURCE( lpGrpIconDir-&gt;idEntries[0].nID ),
+                      RT_ICON );
+hGlobal = LoadResource( hLib, hRsrc );
+lpIconImage = LockResource( hGlobal );
+// Here, lpIconImage points to an ICONIMAGE structure
+</PRE>
+
+<P>Complete code can be found in the Icons.C module of IconPro, in a function named <B>ReadIconFromEXEFile</B>.</P>
+
+<H3 class="dtH1">In Memory</H3>
+
+<P>When dealing with icon resources in memory, the format is identical to the format used in .EXE and .DLL files. APIs such as <B>CreateIconFromResource</B> expect to be passed an ICONIMAGE structure. This is very convenient since <B>FindResource</B>, <B>LoadResource</B> and <B>LockResource </B>can be used to load the RT_ICON resource in that format.</P>
+
+<P>An HICON handle is a handle to a single icon image, or RT_ICON resource. In previous versions of Windows, the size of an HICON image could be determined by calling <B>GetSystemMetrics</B> with the SM_CYICON and SM_CXICON flags. It is now possible, however, to have HICON handles for icons with non-standard sizes. HICON icons always have the same color format as the display device. See the discussion of APIs below for more details on how to handle icons of different sizes and color depths using HICON handles.</P>
+
+<H2 class="dtH1">When in Windows</H2>
+
+<P>In Windows, the system maintains the concept of  two sizes of icons, small and large. Further, the shell also has a concept of small and large icons. This means that in total, Windows is aware of four different icon sizes&#0151;System Small, System Large, Shell Small, and Shell Large.</P>
+
+<P>The System Small size is derived from the size of window captions. The caption size can be adjusted from the "Appearance" tab in the Display Properties dialog. Adjustments made to the caption size are immediately reflected in the System Small icon size. The System Small size can be queried by calling <B>GetSystemMetrics</B> with the SM_CXSMICON and SM_CYSMICON parameters.</P>
+
+<P>The System Large size is defined by the video driver and therefore cannot be changed dynamically. The System Large size can be queried by calling <B>GetSystemMetrics</B> with the SM_CXICON and SM_CYICON parameters.</P>
+
+<P>The Shell Small size is defined by Windows, and currently Windows does not support changing this value, nor is there currently a direct way to query this value. </P>
+
+<P>The Shell Large size is stored in the registry under the following key:</P>
+
+<PRE class="code">HKEY_CURRENT_USER\Control Panel\desktop\WindowMetrics\Shell Icon Size
+</PRE>
+
+<P>The Shell Large size can be changed by modifying the registry or from the "Appearance" tab in the Display Properties dialog, which allows values from 16 to 72. Following is an example of code that can be used to change the Shell Large icon size by accessing the registry:</P>
+
+<PRE class="code">DWORD SetShellLargeIconSize( DWORD dwNewSize )
+{
+   #define MAX_LENGTH   512
+   DWORD   dwOldSize, dwLength = MAX_LENGTH, dwType = REG_SZ;
+   TCHAR   szBuffer[MAX_LENGTH];
+   HKEY   hKey;
+
+   // Get the Key
+   RegOpenKey( HKEY_CURRENT_USER, "Control Panel\\desktop\\WindowMetrics",                   &amp;hKey);
+   // Save the last size
+   RegQueryValueEx( hKey, "Shell Icon Size", NULL, &amp;dwType, szBuffer, 
+               &amp;dwLength );
+   dwOldSize = atol( szBuffer );
+   // We will allow only values &gt;=16 and &lt;=72
+   if( (dwNewSize&gt;=16) || (dwNewSize&lt;=72) )
+   {
+      wsprintf( szBuffer, "%d", dwNewSize );
+      RegSetValueEx( hKey, "Shell Icon Size", 0, REG_SZ, szBuffer,
+                  lstrlen(szBuffer) + 1 );
+   }
+   // Clean up
+   RegCloseKey( hKey );
+   // Let everyone know that things changed
+   SendMessage( HWND_BROADCAST, WM_SETTINGCHANGE, SPI_SETICONMETRICS,
+               (LPARAM)("WindowMetrics") );
+   return dwOldSize;
+   #undef MAX_LENGTH
+}
+</PRE>
+
+<P class="label"><B>Table 1. Where Windows Uses Different Sized Icons</B></P>
+<div class="tablediv"><table cellspacing="0" class="dtTABLE">
+
+<TR VALIGN="top">
+<TH width=54%>Location</TH>
+<TH width=46%>Icon Size</TH>
+</TR>
+
+<TR VALIGN="top">
+<TD width=54%>Desktop</TD>
+<TD width=46%>Shell Large</TD>
+</TR>
+
+<TR VALIGN="top">
+<TD width=54%>TitleBar of Windows</TD>
+<TD width=46%>System Small</TD>
+</TR>
+
+<TR VALIGN="top">
+<TD width=54%>&lt;Alt&gt;&lt;Tab&gt; Dialog</TD>
+<TD width=46%>System Large</TD>
+</TR>
+
+<TR VALIGN="top">
+<TD width=54%>Start Menu</TD>
+<TD width=46%>Shell Small / Shell Large</TD>
+</TR>
+</table></div>
+
+<P>While Windows imposes no restrictions on the sizes of icons, common sizes include 16, 32, and 48 pixels square. For this reason, developers are encouraged to include a minimum of the following sizes and color depths in their icon resources:</P>
+<div class="tablediv"><table cellspacing="0" class="dtTABLE">
+
+<TR VALIGN="top">
+<TD width=35%>16 x 16</TD>
+<TD width=65%>16 colors</TD>
+</TR>
+
+<TR VALIGN="top">
+<TD width=35%>32 x 32</TD>
+<TD width=65%>16 colors</TD>
+</TR>
+
+<TR VALIGN="top">
+<TD width=35%>48 x 48</TD>
+<TD width=65%>256 colors</TD>
+</TR>
+</table></div>
+
+<H3 class="dtH1">Choosing an Icon</H3>
+
+<P>When Windows prepares to display an icon, a desktop shortcut for example, it must parse the .EXE or .DLL file and extract the appropriate icon image. This selection is a two step process starting with the selection of the appropriate RT_GROUP_ICON resource, and ending with the selection of the proper RT_ICON image from that RT_GROUP_ICON.</P>
+
+<H4 class="dtH1">Which Icon?</H4>
+
+<P>If an .EXE or .DLL file has only one RT_GROUP_ICON resource, the first step is trivial; Windows simply uses that resource. However, if more than one such group resource exists in the file, Windows must decide which one to use. Windows NT simply chooses the first resource listed in the application's RC script. On the other hand, Windows 95's algorithm is to choose the alphabetically first named group icon if one exists. If one such group resource does not exist, Windows chooses the icon with the numerically lowest identifier. So, to be sure that a particular icon is used for an application, the developer should insure that both of the following criteria are met:
+
+<OL type="1">
+	<LI>The icon is placed before all other icons in the RC file.</li>
+
+	<LI>If the icon is named, its name is alphabetically before any other named icon, otherwise its resource identifier is numerically smaller than any other icon.</li>
+</OL>
+
+<H4 class="dtH1">Which Image?</H4>
+
+<P>Once an RT_GROUP_ICON is chosen, the individual icon image, or RT_ICON resource, must be selected and extracted. Again, if there exists only one RT_ICON resource for the group in question, the choice is trivial. However, if multiple images are present in the group, the following selection rules are applied:
+
+<OL type="1">
+	<LI>The image closest in size to the requested size is chosen.</li>
+
+	<LI>If two or more images of that size are present, the one that matches the color depth of the display is chosen.</li>
+
+	<LI>If none exactly match the color depth of the display, Windows chooses the image with the greatest color depth without exceeding the color depth of the display.</li>
+
+	<LI>If all the size-matched images exceed the color depth of the display, the one with the lowest color depth is chosen.</li>
+
+	<LI>Windows treats all color depths of 8 or more bpp as equal. For example, it is pointless to have a 16x16 256 color image and a 16x16 16bpp image in the same resource&#0151;Windows will simply choose the first one it encounters. </li>
+
+	<LI>When the display is in 8bpp mode, Windows will prefer a 16 color icon over a 256 color icon, and will display all icons using the system default palette.</li>
+</OL>
+
+<H2 class="dtH1">APIs</H2>
+
+<P>When dealing with icons, the developer can choose to manipulate the raw resource bytes, or let Windows handle the low level details and simply use HICON handles. The advantage of handling the raw resource bytes is a gain in control, while the advantage of using the HICON handles is that of simplicity. For most purposes, the HICON interface is sufficient&#0151;it is likely that handling the raw resource bytes will be necessary only in the development of an icon handling program.</P>
+
+<H3 class="dtH1">Raw Resource Bytes</H3>
+
+<P>The standard Windows API functions for manipulating resources&#0151;<B>FindResource</B>, <B>LoadResource</B> and <B>LockResource</B>&#0151;can, of course, be used to handle icon resources.</P>
+
+<P><B>EnumResourceNames</B> can be used, passing in RT_GROUP_ICON, to find the available group icon resources. Once the appropriate group resource is chosen, it can be loaded using <B>FindResource</B>, <B>LoadResource</B> and <B>LockResource</B>. This will yield a pointer to a GRPICONDIR structure.</P>
+
+<P>The <B>idEntries</B> array is the searched for a match on the desired color depth and size. The <B>nID</B> member of that array element is then used as an argument to <B>FindResource</B>, passing in RT_ICON. <B>LoadResource</B> and <B>LockResource</B> then yield a pointer to an ICONIMAGE structure for that icon image.</P>
+
+<P>To allow Windows to perform the color depth and size selection, the GRPICONDIR structure can be passed to <B>LookUpIconIdFromDirectory</B> or L<B>ookUpIconIdFromDirectoryEx</B>. Both of these functions return an id that can be used with RT_ICON and FindResource, the latter providing a way to specify a desired size to match against. </P>
+
+<P>The ICONIMAGE structure contains pointers to the DIB bits for the masks. These pointers can be used in DIB functions for direct manipulation. The ICONIMAGE structure is also conveniently suitable to be passed to <B>CreateIconFromResource</B> or <B>CreateIconFromResourceEx</B> to yield an HICON handle. The former of the two functions creates an icon that is System Large size. The latter provides a way to specify a desired size, and Windows performs the appropriate conversions. </P>
+
+<H3 class="dtH1">HICON Handles</H3>
+
+<P>An HICON handle is a handle to a single icon image. This is analogous to a single RT_ICON resource. The image is stored internally using device dependent bitmaps (DDBs). This implies that all HICON icons have the same color format as the display device. The size of the icon depends on its origin and the system defined icon sizes.</P>
+
+<P>The available icon handling functions can be thought of in two groups&#0151;those that handle System Large size icons and those that handle any size icons. The functions that handle only System Large size icons are typically left over from 16 bit days, when the system defined only one icon size. The newer functions, those that handle any size icon, accept as a parameter the desired size of the icon.</P>
+
+<H4 class="dtH1">One Size Fits All</H4>
+
+<P>The original icon handling functions were designed for a system that defined only one icon size. Therefore, most of those functions are unaware of the possibility of more than one icon size and assume all icons are System Large size.</P>
+
+<P><B>LoadIcon</B>, <B>ExtractIcon</B> and <B>DrawIcon</B> fall into this category. <B>LoadIcon</B> and <B>ExtractIcon</B> always search for a match for System Large size. If an exact match cannot be found, these two functions stretch the closest match to that size. They always return an icon of System Large size. Similarly, <B>DrawIcon</B> always draws the icon at System Large size. If a different size icon is passed to <B>DrawIcon</B>, it is stretched and displayed at System Large size.</P>
+
+<P><B>CreateIconFromResource</B> also exhibits this behavior. It returns a handle to a System Large size icon, stretching the RT_ICON resource it was passed as necessary.</P>
+
+<H4 class="dtH1">To Each Their Own</H4>
+
+<P>Now that Windows has the ability to handle different sized icons, new API functions were added to handle them. In some cases, old functions were expanded and "Ex" was added to their name. In other cases, whole new functions were added. The net result is that there is now full support for different sized icons in the Windows API.</P>
+
+<P>Several different functions are available to get an HICON handle to a different sized icon. <B>LoadImage</B> can be used to extract an icon from an EXE or DLL file without the hassle of manually loading the resource bytes. <B>CreateIconFromResourceEx</B> is available if the resource bytes have been loaded.</P>
+
+<P><B>CreateIcon</B> and <B>CreateIconIndirect</B>, even though they have their roots in 16-bit land, do facilitate creating icons of different sizes. <B>CreateIcon</B> accept a desired width and height as parameters, while <B>CreateIconIndirect</B> creates an icon based on the bitmaps in the ICONINFO parameter. Note that both of these functions work with DDBs, not DIBs.</P>
+
+<P><B>SHGetFileInfo</B> can also be used to get icons from files, providing the icon that the shell would display for the file. <B>SHGetFileInfo</B> works on any type of file, and can extract any of the four icons sizes, as shown below:</P>
+
+<PRE class="code">// Load a System Large icon image
+SHGetFileInfo( szFileName, 0, &amp;shfi, sizeof( SHFILEINFO ), 
+               SHGFI_ICON | SHGFI_LARGEICON);
+
+// Load a System Small icon image
+SHGetFileInfo( szFileName, 0, &amp;shfi, sizeof( SHFILEINFO ), 
+               SHGFI_ICON | SHGFI_SMALLICON);
+
+// Load a Shell Large icon image
+SHGetFileInfo( szFileName, 0, &amp;shfi, sizeof( SHFILEINFO ), 
+               SHGFI_ICON | SHGFI_SHELLICONSIZE);
+
+// Load a Shell Small icon image
+SHGetFileInfo( szFileName, 0, &amp;shfi, sizeof( SHFILEINFO ), 
+               SHGFI_ICON | SHGFI_SHELLICONSIZE | SHGFI_SMALLICON);
+</PRE>
+
+<P>Given an HICON handle, DrawIconEx can be used to display it&#0151;at its normal size, at the System Large size, or at any other size:</P>
+
+<PRE class="code">// Draw it at its native size
+DrawIconEx( hDC, nLeft, nTop, hIcon, 0, 0, 0, NULL, DI_NORMAL );
+
+// Draw it at the System Large size
+DrawIconEx( hDC, nLeft, nTop, hIcon, 0, 0, 0, 
+            NULL, DI_DEFAULTSIZE | DI_NORMAL );
+
+// Draw it at some other size (40x40 in this example)
+DrawIconEx( hDC, nLeft, nTop, hIcon, 40, 40, 0, NULL, DI_NORMAL );
+</PRE>
+
+<P>Note that DrawIconEx will stretch the icon as necessary to make it fit the desired output size.</P>
+
+<H4 class="dtH1">What's in There?</H4>
+
+<P>The Win32 API provides a function for determining the characteristics of an icon, given its HICON handle. This function is <B>GetIconInfo</B>. <B>GetIconInfo</B> fills out an ICONINFO structure with the information pertaining to the HICON. The ICONINFO structure contains the following information:</P>
+
+<PRE class="code">typedef struct _ICONINFO { // ii  
+
+   BOOL    fIcon;   // TRUE for icon, FALSE for cursor
+   DWORD   xHotspot;   // the x hotspot coordinate for cursor
+   DWORD   yHotspot;   // the y hotspot coordinate for cursor
+   HBITMAP hbmMask;   // handle to monochrome AND mask bitmap
+   HBITMAP hbmColor;   // handle to device dependent XOR mask bitmap
+} ICONINFO;
+</PRE>
+
+<P>Given this information, an application can calculate the information needed to write the icon to a file. The AND mask and XOR mask DIB bits can be obtained with calls to <B>GetDIBits</B> on the two bitmaps in this structure.</P>
+
+<H2 class="dtH1">A Word on Cursors</H2>
+
+<P>Cursors, in Win32, are very similar to icons. In fact, by changing only one line in the source code for IconPro, that sample can read .CUR files. IconPro currently tests the <B>idType</B> member of the ICONDIR structure to make sure the file is an icon file. This check can be relaxed to allow the type for cursors (2) as well. Also, HCURSOR handles can be used interchangeably with HICON handles in most Win32 icon APIs.</P>
+
+<H2 class="dtH1">Conclusion</H2>
+
+<P>Although the icon specification has long been able to handle icons of odd sizes and color depths, only recently has Windows responded with inherent support for such images. Developers now have the option of dealing directly with the bits of an icon, or allowing Windows to handle all the details. Windows even provides API support for loading and displaying icons of non-standard sizes and different color depths.</P>
+<!--Footer Start-->
+<DIV CLASS="footer">
+<br>
+<HR><!--Feedback Link-->
+<p><A HREF="JavaScript:sendfeedback('_418185', 'MSDN@MICROSOFT.COM')" onMouseover="window.status='Send feedback to Microsoft';return true" onMouseout="window.status='';return true" onmousedown="window.status='Send feedback to Microsoft';return true" onfocus="window.status='Send feedback to Microsoft';return true">Send feedback to Microsoft</A></p><!--Copyright-->
+<p><MSHelp:link keywords="msdn_copyright" TABINDEX="0">&copy; 2003 Microsoft Corporation. All rights reserved.</MSHelp:link></p></div> <!--Closes the footer div-->
+</div> <!--closes the topic content div-->
+<!--FOOTER_END-->
+<script>addSample( "4493", "4493");</script>
+
+
+</BODY>
+</HTML>
