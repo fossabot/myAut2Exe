@@ -141,7 +141,923 @@ Sub DeToken()
          Select Case cmd
          
 '------- Numbers -----------
-         Case &H0 To &HF
+         Case &H0
+            'keywords
+            Dim int32_0$
+            int32_0 = .int32
+            TypeName = "Keyword"
+            FL_verbose TypeName & ": 0x" & H32(int32_0) & "   " & int32_0
+
+            Select Case int32_0
+               Case 1
+                  Atom = " AND "
+               Case 2
+                  Atom = " OR "
+               Case 3
+                  Atom = " NOT "
+               Case 4
+                  Atom = " IF "
+               Case 5
+                  Atom = " THEN "
+               Case 6
+                  Atom = " ELSE "
+               Case 7
+                  Atom = " ELSEIF "
+               Case 8
+                  Atom = " ENDIF "
+               Case 9
+                  Atom = " WHILE "
+               Case 10
+                  Atom = " WEND "
+               Case 11
+                  Atom = " DO "
+               Case 12
+                  Atom = " UNTIL "
+               Case 13
+                  Atom = " FOR "
+               Case 14
+                  Atom = " NEXT "
+               Case 15
+                  Atom = " TO "
+               Case 16
+                  Atom = " STEP "
+               Case 17
+                  Atom = " IN "
+               Case 18
+                  Atom = " EXITLOOP "
+               Case 19
+                  Atom = " CONTINUELOOP "
+               Case 20
+                  Atom = " SELECT "
+               Case 21
+                  Atom = " CASE "
+               Case 22
+                  Atom = " ENDSELECT "
+               Case 23
+                  Atom = " SWITCH "
+               Case 24
+                  Atom = " ENDSWITCH "
+               Case 25
+                  Atom = " CONTINUECASE "
+               Case 26
+                  Atom = " DIM "
+               Case 27
+                  Atom = " REDIM "
+               Case 28
+                  Atom = " LOCAL "
+               Case 29
+                  Atom = " GLOBAL "
+               Case 30
+                  Atom = " CONST "
+               Case 31
+                  Atom = " STATIC "
+               Case 32
+                  Atom = " FUNC "
+               Case 33
+                  Atom = " ENDFUNC "
+               Case 34
+                  Atom = " RETURN "
+               Case 35
+                  Atom = " EXIT "
+               Case 36
+                  Atom = " BYREF "
+               Case 37
+                  Atom = " WITH "
+               Case 38
+                  Atom = " ENDWITH "
+               Case 39
+                  Atom = " TRUE "
+               Case 40
+                  Atom = " FALSE "
+               Case 41
+                  Atom = " DEFAULT "
+               Case 42
+                  Atom = " NULL "
+               Case Else
+                  Atom = "{unknown keyword}" & H32(int32_0)
+            End Select
+         Case &H1
+            'built-in function calls
+            Dim int32_1$
+            int32_1 = .int32
+            TypeName = "Built-in function"
+            FL_verbose TypeName & ": 0x" & H32(int32_1) & "   " & int32_1
+
+            Select Case int32_1
+               Case 1
+                  Atom = "ACOS"
+               Case 2
+                  Atom = "ADLIBREGISTER"
+               Case 3
+                  Atom = "ADLIBUNREGISTER"
+               Case 4
+                  Atom = "ASC"
+               Case 5
+                  Atom = "ASCW"
+               Case 6
+                  Atom = "ASIN"
+               Case 7
+                  Atom = "ASSIGN"
+               Case 8
+                  Atom = "ATAN"
+               Case 9
+                  Atom = "AUTOITSETOPTION"
+               Case 10
+                  Atom = "AUTOITWINGETTITLE"
+               Case 11
+                  Atom = "AUTOITWINSETTITLE"
+               Case 12
+                  Atom = "BEEP"
+               Case 13
+                  Atom = "BINARY"
+               Case 14
+                  Atom = "BINARYLEN"
+               Case 15
+                  Atom = "BINARYMID"
+               Case 16
+                  Atom = "BINARYTOSTRING"
+               Case 17
+                  Atom = "BITAND"
+               Case 18
+                  Atom = "BITNOT"
+               Case 19
+                  Atom = "BITOR"
+               Case 20
+                  Atom = "BITROTATE"
+               Case 21
+                  Atom = "BITSHIFT"
+               Case 22
+                  Atom = "BITXOR"
+               Case 23
+                  Atom = "BLOCKINPUT"
+               Case 24
+                  Atom = "BREAK"
+               Case 25
+                  Atom = "CALL"
+               Case 26
+                  Atom = "CDTRAY"
+               Case 27
+                  Atom = "CEILING"
+               Case 28
+                  Atom = "CHR"
+               Case 29
+                  Atom = "CHRW"
+               Case 30
+                  Atom = "CLIPGET"
+               Case 31
+                  Atom = "CLIPPUT"
+               Case 32
+                  Atom = "CONSOLEREAD"
+               Case 33
+                  Atom = "CONSOLEWRITE"
+               Case 34
+                  Atom = "CONSOLEWRITEERROR"
+               Case 35
+                  Atom = "CONTROLCLICK"
+               Case 36
+                  Atom = "CONTROLCOMMAND"
+               Case 37
+                  Atom = "CONTROLDISABLE"
+               Case 38
+                  Atom = "CONTROLENABLE"
+               Case 39
+                  Atom = "CONTROLFOCUS"
+               Case 40
+                  Atom = "CONTROLGETFOCUS"
+               Case 41
+                  Atom = "CONTROLGETHANDLE"
+               Case 42
+                  Atom = "CONTROLGETPOS"
+               Case 43
+                  Atom = "CONTROLGETTEXT"
+               Case 44
+                  Atom = "CONTROLHIDE"
+               Case 45
+                  Atom = "CONTROLLISTVIEW"
+               Case 46
+                  Atom = "CONTROLMOVE"
+               Case 47
+                  Atom = "CONTROLSEND"
+               Case 48
+                  Atom = "CONTROLSETTEXT"
+               Case 49
+                  Atom = "CONTROLSHOW"
+               Case 50
+                  Atom = "CONTROLTREEVIEW"
+               Case 51
+                  Atom = "COS"
+               Case 52
+                  Atom = "DEC"
+               Case 53
+                  Atom = "DIRCOPY"
+               Case 54
+                  Atom = "DIRCREATE"
+               Case 55
+                  Atom = "DIRGETSIZE"
+               Case 56
+                  Atom = "DIRMOVE"
+               Case 57
+                  Atom = "DIRREMOVE"
+               Case 58
+                  Atom = "DLLCALL"
+               Case 59
+                  Atom = "DLLCALLADDRESS"
+               Case 60
+                  Atom = "DLLCALLBACKFREE"
+               Case 61
+                  Atom = "DLLCALLBACKGETPTR"
+               Case 62
+                  Atom = "DLLCALLBACKREGISTER"
+               Case 63
+                  Atom = "DLLCLOSE"
+               Case 64
+                  Atom = "DLLOPEN"
+               Case 65
+                  Atom = "DLLSTRUCTCREATE"
+               Case 66
+                  Atom = "DLLSTRUCTGETDATA"
+               Case 67
+                  Atom = "DLLSTRUCTGETPTR"
+               Case 68
+                  Atom = "DLLSTRUCTGETSIZE"
+               Case 69
+                  Atom = "DLLSTRUCTSETDATA"
+               Case 70
+                  Atom = "DRIVEGETDRIVE"
+               Case 71
+                  Atom = "DRIVEGETFILESYSTEM"
+               Case 72
+                  Atom = "DRIVEGETLABEL"
+               Case 73
+                  Atom = "DRIVEGETSERIAL"
+               Case 74
+                  Atom = "DRIVEGETTYPE"
+               Case 75
+                  Atom = "DRIVEMAPADD"
+               Case 76
+                  Atom = "DRIVEMAPDEL"
+               Case 77
+                  Atom = "DRIVEMAPGET"
+               Case 78
+                  Atom = "DRIVESETLABEL"
+               Case 79
+                  Atom = "DRIVESPACEFREE"
+               Case 80
+                  Atom = "DRIVESPACETOTAL"
+               Case 81
+                  Atom = "DRIVESTATUS"
+               Case 82
+                  Atom = "DUMMYSPEEDTEST"
+               Case 83
+                  Atom = "ENVGET"
+               Case 84
+                  Atom = "ENVSET"
+               Case 85
+                  Atom = "ENVUPDATE"
+               Case 86
+                  Atom = "EVAL"
+               Case 87
+                  Atom = "EXECUTE"
+               Case 88
+                  Atom = "EXP"
+               Case 89
+                  Atom = "FILECHANGEDIR"
+               Case 90
+                  Atom = "FILECLOSE"
+               Case 91
+                  Atom = "FILECOPY"
+               Case 92
+                  Atom = "FILECREATENTFSLINK"
+               Case 93
+                  Atom = "FILECREATESHORTCUT"
+               Case 94
+                  Atom = "FILEDELETE"
+               Case 95
+                  Atom = "FILEEXISTS"
+               Case 96
+                  Atom = "FILEFINDFIRSTFILE"
+               Case 97
+                  Atom = "FILEFINDNEXTFILE"
+               Case 98
+                  Atom = "FILEFLUSH"
+               Case 99
+                  Atom = "FILEGETATTRIB"
+               Case 100
+                  Atom = "FILEGETENCODING"
+               Case 101
+                  Atom = "FILEGETLONGNAME"
+               Case 102
+                  Atom = "FILEGETPOS"
+               Case 103
+                  Atom = "FILEGETSHORTCUT"
+               Case 104
+                  Atom = "FILEGETSHORTNAME"
+               Case 105
+                  Atom = "FILEGETSIZE"
+               Case 106
+                  Atom = "FILEGETTIME"
+               Case 107
+                  Atom = "FILEGETVERSION"
+               Case 108
+                  Atom = "FILEINSTALL"
+               Case 109
+                  Atom = "FILEMOVE"
+               Case 110
+                  Atom = "FILEOPEN"
+               Case 111
+                  Atom = "FILEOPENDIALOG"
+               Case 112
+                  Atom = "FILEREAD"
+               Case 113
+                  Atom = "FILEREADLINE"
+               Case 114
+                  Atom = "FILEREADTOARRAY"
+               Case 115
+                  Atom = "FILERECYCLE"
+               Case 116
+                  Atom = "FILERECYCLEEMPTY"
+               Case 117
+                  Atom = "FILESAVEDIALOG"
+               Case 118
+                  Atom = "FILESELECTFOLDER"
+               Case 119
+                  Atom = "FILESETATTRIB"
+               Case 120
+                  Atom = "FILESETEND"
+               Case 121
+                  Atom = "FILESETPOS"
+               Case 122
+                  Atom = "FILESETTIME"
+               Case 123
+                  Atom = "FILEWRITE"
+               Case 124
+                  Atom = "FILEWRITELINE"
+               Case 125
+                  Atom = "FLOOR"
+               Case 126
+                  Atom = "FTPSETPROXY"
+               Case 127
+                  Atom = "FUNCNAME"
+               Case 128
+                  Atom = "GUICREATE"
+               Case 129
+                  Atom = "GUICTRLCREATEAVI"
+               Case 130
+                  Atom = "GUICTRLCREATEBUTTON"
+               Case 131
+                  Atom = "GUICTRLCREATECHECKBOX"
+               Case 132
+                  Atom = "GUICTRLCREATECOMBO"
+               Case 133
+                  Atom = "GUICTRLCREATECONTEXTMENU"
+               Case 134
+                  Atom = "GUICTRLCREATEDATE"
+               Case 135
+                  Atom = "GUICTRLCREATEDUMMY"
+               Case 136
+                  Atom = "GUICTRLCREATEEDIT"
+               Case 137
+                  Atom = "GUICTRLCREATEGRAPHIC"
+               Case 138
+                  Atom = "GUICTRLCREATEGROUP"
+               Case 139
+                  Atom = "GUICTRLCREATEICON"
+               Case 140
+                  Atom = "GUICTRLCREATEINPUT"
+               Case 141
+                  Atom = "GUICTRLCREATELABEL"
+               Case 142
+                  Atom = "GUICTRLCREATELIST"
+               Case 143
+                  Atom = "GUICTRLCREATELISTVIEW"
+               Case 144
+                  Atom = "GUICTRLCREATELISTVIEWITEM"
+               Case 145
+                  Atom = "GUICTRLCREATEMENU"
+               Case 146
+                  Atom = "GUICTRLCREATEMENUITEM"
+               Case 147
+                  Atom = "GUICTRLCREATEMONTHCAL"
+               Case 148
+                  Atom = "GUICTRLCREATEOBJ"
+               Case 149
+                  Atom = "GUICTRLCREATEPIC"
+               Case 150
+                  Atom = "GUICTRLCREATEPROGRESS"
+               Case 151
+                  Atom = "GUICTRLCREATERADIO"
+               Case 152
+                  Atom = "GUICTRLCREATESLIDER"
+               Case 153
+                  Atom = "GUICTRLCREATETAB"
+               Case 154
+                  Atom = "GUICTRLCREATETABITEM"
+               Case 155
+                  Atom = "GUICTRLCREATETREEVIEW"
+               Case 156
+                  Atom = "GUICTRLCREATETREEVIEWITEM"
+               Case 157
+                  Atom = "GUICTRLCREATEUPDOWN"
+               Case 158
+                  Atom = "GUICTRLDELETE"
+               Case 159
+                  Atom = "GUICTRLGETHANDLE"
+               Case 160
+                  Atom = "GUICTRLGETSTATE"
+               Case 161
+                  Atom = "GUICTRLREAD"
+               Case 162
+                  Atom = "GUICTRLRECVMSG"
+               Case 163
+                  Atom = "GUICTRLREGISTERLISTVIEWSORT"
+               Case 164
+                  Atom = "GUICTRLSENDMSG"
+               Case 165
+                  Atom = "GUICTRLSENDTODUMMY"
+               Case 166
+                  Atom = "GUICTRLSETBKCOLOR"
+               Case 167
+                  Atom = "GUICTRLSETCOLOR"
+               Case 168
+                  Atom = "GUICTRLSETCURSOR"
+               Case 169
+                  Atom = "GUICTRLSETDATA"
+               Case 170
+                  Atom = "GUICTRLSETDEFBKCOLOR"
+               Case 171
+                  Atom = "GUICTRLSETDEFCOLOR"
+               Case 172
+                  Atom = "GUICTRLSETFONT"
+               Case 173
+                  Atom = "GUICTRLSETGRAPHIC"
+               Case 174
+                  Atom = "GUICTRLSETIMAGE"
+               Case 175
+                  Atom = "GUICTRLSETLIMIT"
+               Case 176
+                  Atom = "GUICTRLSETONEVENT"
+               Case 177
+                  Atom = "GUICTRLSETPOS"
+               Case 178
+                  Atom = "GUICTRLSETRESIZING"
+               Case 179
+                  Atom = "GUICTRLSETSTATE"
+               Case 180
+                  Atom = "GUICTRLSETSTYLE"
+               Case 181
+                  Atom = "GUICTRLSETTIP"
+               Case 182
+                  Atom = "GUIDELETE"
+               Case 183
+                  Atom = "GUIGETCURSORINFO"
+               Case 184
+                  Atom = "GUIGETMSG"
+               Case 185
+                  Atom = "GUIGETSTYLE"
+               Case 186
+                  Atom = "GUIREGISTERMSG"
+               Case 187
+                  Atom = "GUISETACCELERATORS"
+               Case 188
+                  Atom = "GUISETBKCOLOR"
+               Case 189
+                  Atom = "GUISETCOORD"
+               Case 190
+                  Atom = "GUISETCURSOR"
+               Case 191
+                  Atom = "GUISETFONT"
+               Case 192
+                  Atom = "GUISETHELP"
+               Case 193
+                  Atom = "GUISETICON"
+               Case 194
+                  Atom = "GUISETONEVENT"
+               Case 195
+                  Atom = "GUISETSTATE"
+               Case 196
+                  Atom = "GUISETSTYLE"
+               Case 197
+                  Atom = "GUISTARTGROUP"
+               Case 198
+                  Atom = "GUISWITCH"
+               Case 199
+                  Atom = "HEX"
+               Case 200
+                  Atom = "HOTKEYSET"
+               Case 201
+                  Atom = "HTTPSETPROXY"
+               Case 202
+                  Atom = "HTTPSETUSERAGENT"
+               Case 203
+                  Atom = "HWND"
+               Case 204
+                  Atom = "INETCLOSE"
+               Case 205
+                  Atom = "INETGET"
+               Case 206
+                  Atom = "INETGETINFO"
+               Case 207
+                  Atom = "INETGETSIZE"
+               Case 208
+                  Atom = "INETREAD"
+               Case 209
+                  Atom = "INIDELETE"
+               Case 210
+                  Atom = "INIREAD"
+               Case 211
+                  Atom = "INIREADSECTION"
+               Case 212
+                  Atom = "INIREADSECTIONNAMES"
+               Case 213
+                  Atom = "INIRENAMESECTION"
+               Case 214
+                  Atom = "INIWRITE"
+               Case 215
+                  Atom = "INIWRITESECTION"
+               Case 216
+                  Atom = "INPUTBOX"
+               Case 217
+                  Atom = "INT"
+               Case 218
+                  Atom = "ISADMIN"
+               Case 219
+                  Atom = "ISARRAY"
+               Case 220
+                  Atom = "ISBINARY"
+               Case 221
+                  Atom = "ISBOOL"
+               Case 222
+                  Atom = "ISDECLARED"
+               Case 223
+                  Atom = "ISDLLSTRUCT"
+               Case 224
+                  Atom = "ISFLOAT"
+               Case 225
+                  Atom = "ISFUNC"
+               Case 226
+                  Atom = "ISHWND"
+               Case 227
+                  Atom = "ISINT"
+               Case 228
+                  Atom = "ISKEYWORD"
+               Case 229
+                  Atom = "ISMAP"
+               Case 230
+                  Atom = "ISNUMBER"
+               Case 231
+                  Atom = "ISOBJ"
+               Case 232
+                  Atom = "ISPTR"
+               Case 233
+                  Atom = "ISSTRING"
+               Case 234
+                  Atom = "LOG"
+               Case 235
+                  Atom = "MAPAPPEND"
+               Case 236
+                  Atom = "MAPEXISTS"
+               Case 237
+                  Atom = "MAPKEYS"
+               Case 238
+                  Atom = "MAPREMOVE"
+               Case 239
+                  Atom = "MEMGETSTATS"
+               Case 240
+                  Atom = "MOD"
+               Case 241
+                  Atom = "MOUSECLICK"
+               Case 242
+                  Atom = "MOUSECLICKDRAG"
+               Case 243
+                  Atom = "MOUSEDOWN"
+               Case 244
+                  Atom = "MOUSEGETCURSOR"
+               Case 245
+                  Atom = "MOUSEGETPOS"
+               Case 246
+                  Atom = "MOUSEMOVE"
+               Case 247
+                  Atom = "MOUSEUP"
+               Case 248
+                  Atom = "MOUSEWHEEL"
+               Case 249
+                  Atom = "MSGBOX"
+               Case 250
+                  Atom = "NUMBER"
+               Case 251
+                  Atom = "OBJCREATE"
+               Case 252
+                  Atom = "OBJCREATEINTERFACE"
+               Case 253
+                  Atom = "OBJEVENT"
+               Case 254
+                  Atom = "OBJGET"
+               Case 255
+                  Atom = "OBJNAME"
+               Case 256
+                  Atom = "ONAUTOITEXITREGISTER"
+               Case 257
+                  Atom = "ONAUTOITEXITUNREGISTER"
+               Case 258
+                  Atom = "OPT"
+               Case 259
+                  Atom = "PING"
+               Case 260
+                  Atom = "PIXELCHECKSUM"
+               Case 261
+                  Atom = "PIXELGETCOLOR"
+               Case 262
+                  Atom = "PIXELSEARCH"
+               Case 263
+                  Atom = "PROCESSCLOSE"
+               Case 264
+                  Atom = "PROCESSEXISTS"
+               Case 265
+                  Atom = "PROCESSGETSTATS"
+               Case 266
+                  Atom = "PROCESSLIST"
+               Case 267
+                  Atom = "PROCESSSETPRIORITY"
+               Case 268
+                  Atom = "PROCESSWAIT"
+               Case 269
+                  Atom = "PROCESSWAITCLOSE"
+               Case 270
+                  Atom = "PROGRESSOFF"
+               Case 271
+                  Atom = "PROGRESSON"
+               Case 272
+                  Atom = "PROGRESSSET"
+               Case 273
+                  Atom = "PTR"
+               Case 274
+                  Atom = "RANDOM"
+               Case 275
+                  Atom = "REGDELETE"
+               Case 276
+                  Atom = "REGENUMKEY"
+               Case 277
+                  Atom = "REGENUMVAL"
+               Case 278
+                  Atom = "REGREAD"
+               Case 279
+                  Atom = "REGWRITE"
+               Case 280
+                  Atom = "ROUND"
+               Case 281
+                  Atom = "RUN"
+               Case 282
+                  Atom = "RUNAS"
+               Case 283
+                  Atom = "RUNASWAIT"
+               Case 284
+                  Atom = "RUNWAIT"
+               Case 285
+                  Atom = "SEND"
+               Case 286
+                  Atom = "SENDKEEPACTIVE"
+               Case 287
+                  Atom = "SETERROR"
+               Case 288
+                  Atom = "SETEXTENDED"
+               Case 289
+                  Atom = "SHELLEXECUTE"
+               Case 290
+                  Atom = "SHELLEXECUTEWAIT"
+               Case 291
+                  Atom = "SHUTDOWN"
+               Case 292
+                  Atom = "SIN"
+               Case 293
+                  Atom = "SLEEP"
+               Case 294
+                  Atom = "SOUNDPLAY"
+               Case 295
+                  Atom = "SOUNDSETWAVEVOLUME"
+               Case 296
+                  Atom = "SPLASHIMAGEON"
+               Case 297
+                  Atom = "SPLASHOFF"
+               Case 298
+                  Atom = "SPLASHTEXTON"
+               Case 299
+                  Atom = "SQRT"
+               Case 300
+                  Atom = "SRANDOM"
+               Case 301
+                  Atom = "STATUSBARGETTEXT"
+               Case 302
+                  Atom = "STDERRREAD"
+               Case 303
+                  Atom = "STDINWRITE"
+               Case 304
+                  Atom = "STDIOCLOSE"
+               Case 305
+                  Atom = "STDOUTREAD"
+               Case 306
+                  Atom = "STRING"
+               Case 307
+                  Atom = "STRINGADDCR"
+               Case 308
+                  Atom = "STRINGCOMPARE"
+               Case 309
+                  Atom = "STRINGFORMAT"
+               Case 310
+                  Atom = "STRINGFROMASCIIARRAY"
+               Case 311
+                  Atom = "STRINGINSTR"
+               Case 312
+                  Atom = "STRINGISALNUM"
+               Case 313
+                  Atom = "STRINGISALPHA"
+               Case 314
+                  Atom = "STRINGISASCII"
+               Case 315
+                  Atom = "STRINGISDIGIT"
+               Case 316
+                  Atom = "STRINGISFLOAT"
+               Case 317
+                  Atom = "STRINGISINT"
+               Case 318
+                  Atom = "STRINGISLOWER"
+               Case 319
+                  Atom = "STRINGISSPACE"
+               Case 320
+                  Atom = "STRINGISUPPER"
+               Case 321
+                  Atom = "STRINGISXDIGIT"
+               Case 322
+                  Atom = "STRINGLEFT"
+               Case 323
+                  Atom = "STRINGLEN"
+               Case 324
+                  Atom = "STRINGLOWER"
+               Case 325
+                  Atom = "STRINGMID"
+               Case 326
+                  Atom = "STRINGREGEXP"
+               Case 327
+                  Atom = "STRINGREGEXPREPLACE"
+               Case 328
+                  Atom = "STRINGREPLACE"
+               Case 329
+                  Atom = "STRINGREVERSE"
+               Case 330
+                  Atom = "STRINGRIGHT"
+               Case 331
+                  Atom = "STRINGSPLIT"
+               Case 332
+                  Atom = "STRINGSTRIPCR"
+               Case 333
+                  Atom = "STRINGSTRIPWS"
+               Case 334
+                  Atom = "STRINGTOASCIIARRAY"
+               Case 335
+                  Atom = "STRINGTOBINARY"
+               Case 336
+                  Atom = "STRINGTRIMLEFT"
+               Case 337
+                  Atom = "STRINGTRIMRIGHT"
+               Case 338
+                  Atom = "STRINGUPPER"
+               Case 339
+                  Atom = "TAN"
+               Case 340
+                  Atom = "TCPACCEPT"
+               Case 341
+                  Atom = "TCPCLOSESOCKET"
+               Case 342
+                  Atom = "TCPCONNECT"
+               Case 343
+                  Atom = "TCPLISTEN"
+               Case 344
+                  Atom = "TCPNAMETOIP"
+               Case 345
+                  Atom = "TCPRECV"
+               Case 346
+                  Atom = "TCPSEND"
+               Case 347
+                  Atom = "TCPSHUTDOWN"
+               Case 348
+                  Atom = "TCPSTARTUP"
+               Case 349
+                  Atom = "TIMERDIFF"
+               Case 350
+                  Atom = "TIMERINIT"
+               Case 351
+                  Atom = "TOOLTIP"
+               Case 352
+                  Atom = "TRAYCREATEITEM"
+               Case 353
+                  Atom = "TRAYCREATEMENU"
+               Case 354
+                  Atom = "TRAYGETMSG"
+               Case 355
+                  Atom = "TRAYITEMDELETE"
+               Case 356
+                  Atom = "TRAYITEMGETHANDLE"
+               Case 357
+                  Atom = "TRAYITEMGETSTATE"
+               Case 358
+                  Atom = "TRAYITEMGETTEXT"
+               Case 359
+                  Atom = "TRAYITEMSETONEVENT"
+               Case 360
+                  Atom = "TRAYITEMSETSTATE"
+               Case 361
+                  Atom = "TRAYITEMSETTEXT"
+               Case 362
+                  Atom = "TRAYSETCLICK"
+               Case 363
+                  Atom = "TRAYSETICON"
+               Case 364
+                  Atom = "TRAYSETONEVENT"
+               Case 365
+                  Atom = "TRAYSETPAUSEICON"
+               Case 366
+                  Atom = "TRAYSETSTATE"
+               Case 367
+                  Atom = "TRAYSETTOOLTIP"
+               Case 368
+                  Atom = "TRAYTIP"
+               Case 369
+                  Atom = "UBOUND"
+               Case 370
+                  Atom = "UDPBIND"
+               Case 371
+                  Atom = "UDPCLOSESOCKET"
+               Case 372
+                  Atom = "UDPOPEN"
+               Case 373
+                  Atom = "UDPRECV"
+               Case 374
+                  Atom = "UDPSEND"
+               Case 375
+                  Atom = "UDPSHUTDOWN"
+               Case 376
+                  Atom = "UDPSTARTUP"
+               Case 377
+                  Atom = "VARGETTYPE"
+               Case 378
+                  Atom = "WINACTIVATE"
+               Case 379
+                  Atom = "WINACTIVE"
+               Case 380
+                  Atom = "WINCLOSE"
+               Case 381
+                  Atom = "WINEXISTS"
+               Case 382
+                  Atom = "WINFLASH"
+               Case 383
+                  Atom = "WINGETCARETPOS"
+               Case 384
+                  Atom = "WINGETCLASSLIST"
+               Case 385
+                  Atom = "WINGETCLIENTSIZE"
+               Case 386
+                  Atom = "WINGETHANDLE"
+               Case 387
+                  Atom = "WINGETPOS"
+               Case 388
+                  Atom = "WINGETPROCESS"
+               Case 389
+                  Atom = "WINGETSTATE"
+               Case 390
+                  Atom = "WINGETTEXT"
+               Case 391
+                  Atom = "WINGETTITLE"
+               Case 392
+                  Atom = "WINKILL"
+               Case 393
+                  Atom = "WINLIST"
+               Case 394
+                  Atom = "WINMENUSELECTITEM"
+               Case 395
+                  Atom = "WINMINIMIZEALL"
+               Case 396
+                  Atom = "WINMINIMIZEALLUNDO"
+               Case 397
+                  Atom = "WINMOVE"
+               Case 398
+                  Atom = "WINSETONTOP"
+               Case 399
+                  Atom = "WINSETSTATE"
+               Case 400
+                  Atom = "WINSETTITLE"
+               Case 401
+                  Atom = "WINSETTRANS"
+               Case 402
+                  Atom = "WINWAIT"
+               Case 403
+                  Atom = "WINWAITACTIVE"
+               Case 404
+                  Atom = "WINWAITCLOSE"
+               Case 405
+                  Atom = "WINWAITNOTACTIVE"
+               Case Else
+                  Atom = "{unknown built-in function}" & H32(int32_1)
+            End Select
+         Case &H2 To &HF
             '&H5
             Dim int32$
             int32 = .int32
@@ -167,7 +1083,6 @@ Sub DeToken()
             
           ' So far this value has always been 5
             Debug.Assert cmd = 5
-         
          Case &H10 To &H1F
             Dim Int64 As Currency
             Int64 = .int64Value
@@ -314,7 +1229,7 @@ Sub DeToken()
  '           log String(40, "_")
          
 '------- Operators -----------
-         Case &H40 To &H56
+         Case &H40 To &H58
 '            Atom = Choose((Cmd - &H40 + 1), ",", "=", ">", "<", "<>", ">=", "<=", "(", ")", "+", "-", "/", "", "&", "[", "]", "==", "^", "+=", "-=", "/=", "*=", "&=")
          '                     Au3Manual AcciChar
             
@@ -342,10 +1257,11 @@ Sub DeToken()
                Case &H54: Atom = "/=" '5       2F
                Case &H55: Atom = "*=" '4       2A
                Case &H56: Atom = "&=" '6       26
+               Case &H57: Atom = "?"
+               Case &H58: Atom = ":"
             End Select
             TypeName = "operator"
             FL_verbose """" & Atom & """   Type: " & TypeName
-            
 '------- EOL -----------
          Case &H7F
           ' Execute
