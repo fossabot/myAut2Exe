@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin VB.Form FrmMain 
-   Caption         =   "myAut2Exe >The Open Source AutoIT/AutoHotKey script decompiler<"
+   Caption         =   "myAut2Exe (mod by kao)"
    ClientHeight    =   9675
    ClientLeft      =   2670
    ClientTop       =   1005
