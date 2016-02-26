@@ -1,4 +1,5 @@
-**This is my personal copy of myAut2Exe. I created it because the original software seems to be abandoned since 2014.
+**
+This is my personal copy of myAut2Exe. I created it because the original software seems to be abandoned since 2014.
 
 No support, no guarantees of any kind.
 **
