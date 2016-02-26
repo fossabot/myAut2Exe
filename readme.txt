@@ -1,3 +1,9 @@
+**This is my personal copy of myAut2Exe. I created it because the original software seems to be abandoned since 2014.
+
+No support, no guarantees of any kind.
+**
+
+
 myAut2Exe - The Open Source AutoIT Script Decompiler 2.12
 =========================================================
 
@@ -135,12 +141,12 @@ Tools
    'Regular Expression Renamer'
      With is you can manually (de)obfuscate function or variable names.
      
-     enabling the ‘simple’ mode button allows you to do mass search'n'relace like this:
+     enabling the ï¿½simpleï¿½ mode button allows you to do mass search'n'relace like this:
     "\$gStr0001" -> ""LITE""
     "\$gStr0002" -> ""td""
     "\$gStr0003" -> ""If checked, ML Bot enables a specific username as Administrator.""
-    …
-    (^- create this in an editor with some more or less intelligent Search’n’Replace steps)
+    ï¿½
+    (^- create this in an editor with some more or less intelligent Searchï¿½nï¿½Replace steps)
      
 
 
@@ -304,7 +310,7 @@ Dumping is done like this: Run LauncherGUI.exe and keep it open. Open the Launch
 Until you find something like that
 Offset      0  1  2  3  4  5  6  7   8  9  A  B  C  D  E  F
 xxxxxx20   A3 48 4B BE 98 6C 4A A9  99 4C 53 0A 86 D6 48 7D
-£HK¾?lJ©™LS.†ÖH}
+ï¿½HKï¿½?lJï¿½ï¿½LS.ï¿½ï¿½H}
 xxxxxx30   41 55 33 21 45 41 30 36                            AU3!EA06
 
 Search for 'AU3!EA06' again and copy everything into a new file and save it. The 'good' region is always the last one/ after 'AU3!EA06' some 00 should follow.
@@ -419,7 +425,7 @@ EndIf
 The Compiled Script AutoIT File format:
 --------------------------------------
 
-AutoIt_Signature        size 0x14 Byte  String "£HK...AU3!"
+AutoIt_Signature        size 0x14 Byte  String "ï¿½HK...AU3!"
 MD5PassphraseHash       size 0x10 Byte                      [LenKey=FAC1, StrKey=C3D2 AHK only]
 ResType                 size 0x4 Byte   eString: "FILE"     [             StrKey=16FA]
 ScriptType              eString ">AUTOIT SCRIPT<"           [LenKey=29BC, StrKey=A25E]
@@ -777,10 +783,10 @@ History
 
 1.9  Finally full support for AutoIT v3.2.6++ files
 
-1.81 BugFix: password checksum got invalid for new Aut3 files because of 'äöü'(ACCI bigger 7f)-fix
+1.81 BugFix: password checksum got invalid for new Aut3 files because of 'ï¿½ï¿½ï¿½'(ACCI bigger 7f)-fix
 
 1.8 Added: Support for au3 v3.2.6 + TokenFile
-    BugFix: scripts with passwords like 'äöü'(ACCI bigger 7f) were not corrected decrypted
+    BugFix: scripts with passwords like 'ï¿½ï¿½ï¿½'(ACCI bigger 7f) were not corrected decrypted
 
 1.71 Bug fix: output name contained '>' that result in an invalid output filename
 
@@ -808,7 +814,7 @@ History
 
 1.0 initial Version
 
-<cw2k[ät]gmx.de>        http://board.deioncube.in/showthread.php?tid=29
+<cw2k[ï¿½t]gmx.de>        http://board.deioncube.in/showthread.php?tid=29
                         http://deioncube.in/files/MyAutToExe/
                         http://myAutToExe2.tk
 
