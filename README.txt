@@ -1,3 +1,5 @@
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcotrik2001%2FmyAut2Exe.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcotrik2001%2FmyAut2Exe?ref=badge_shield)
+
 myAut2Exe - The Open Source AutoIT Script Decompiler 2.12
 =========================================================
 
@@ -866,3 +868,7 @@ but now finally...
 
 
 EOL.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcotrik2001%2FmyAut2Exe.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcotrik2001%2FmyAut2Exe?ref=badge_large)
