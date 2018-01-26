@@ -1,16 +1,7 @@
-**
-This is my personal copy of myAut2Exe. I created it because the original software seems to be abandoned since 2014.
-
-No support, no guarantees of any kind.
-**
-
-
 myAut2Exe - The Open Source AutoIT Script Decompiler 2.12
 =========================================================
 
-
 *New* full support for AutoIT v3.2.6++ :)
-
 
 ... mmh here's what I merely missed in the 'public sources 3.1.0'
 This program is for studying the 'Compiled' AutoIt3 format.
@@ -19,8 +10,6 @@ AutoHotKey was developed from AutoIT and so scripts are nearly the same.
 
 Drag the compiled *.exe or *.a3x into the AutoIT Script Decompiler textbox.
 To copy text or to enlarge the log window double click on it.
-
-
 
 Supported Obfuscators:
 'Jos van der Zande AutoIt3 Source Obfuscator v1.0.14 [June 16, 2007]' ,
@@ -31,19 +20,14 @@ Supported Obfuscators:
 'EncodeIt 2.0' and
 'Chr() string encode'
 
-
 Tested with:
-
    AutoIT    : v3. 3. 6.1
    AutoIT    : v3. 3. 0.0 and
    AutoIT    : v2.64. 0.0 and
    AutoHotKey: v1. 0.48.5
 
-
-
-The options:
-===========
-
+The Options
+-----------
 'GetCamo's'
    It'll use RegExp to grab the needed camo vectors from the Au3-exe-stub.
    ^- Note that this function only works if the target is unpacked. 
@@ -111,8 +95,7 @@ Options in the 'ScriptBody XORKey's' frame
   then it's probably good to change the standard value from 18EE to 254F194.
   (And to do this for the other values as well) to get the script decrypted
   finally decompiled.
-  More details in the AutoIt3Camo-sections
-  
+  More details in the AutoIt3Camo-sections  
   
 'FILE-decryptionKey
   Incase the FILE-decryption key was changed you may enter it here. 
@@ -136,9 +119,8 @@ Options in the 'ScriptBody XORKey's' frame
    http://www.freewarecorner.de/download.php?id=7298
    http://www.freewarecorner.de/edecrypt_brute_force_md5_cracker-Download-7298.html
 
-
 Tools
-=====
+-----
    'Regular Expression Renamer'
      With is you can manually (de)obfuscate function or variable names.
      
@@ -148,8 +130,6 @@ Tools
     "\$gStr0003" -> ""If checked, ML Bot enables a specific username as Administrator.""
     �
     (^- create this in an editor with some more or less intelligent Search�n�Replace steps)
-     
-
 
    'Function Renamer'
       If you decompiled a file that was obfuscated all variable and function got lost.
@@ -198,9 +178,8 @@ Tools
    'GetAutoItVersion'
       
 
-CommandLine:
-===========
-
+CommandLine
+-----------
    Ah yes to open a file you may also pass it via command line like this
    myAutToExe.exe "C:\Program Files\Example.exe" -> myAutToExe.exe "%1"
    So you may associate exe file with myAutToExe.exe to decompile them with a right click.
@@ -209,8 +188,6 @@ CommandLine:
    options:
    /q    will quit myAutToExe when it is finished
    /s    [required /q to be enable] RunSilent will completly hide myAutToExe
-
-
 
 The myAutToExe 'FileZoo'
 ------------------------
@@ -226,15 +203,13 @@ The myAutToExe 'FileZoo'
  *.au3  
  *.tbl   Contains ScriptStrings - Goes together with an VanZande-obfucated script.
 
-
 Files
 =====
 
  myAutToExe.exe     Compiled (pCode) VB6-Exe
  data\RanRot_MT.dll      RanRot & Mersenne Twister pRandom Generator - used to decrypt scriptdata
  data\LZSS.exe           Called after to decryption to decompress the script
- data\ExtractExeIcon.exe Used to extract the MainIcon(s) from the ScriptExe
- 
+ data\ExtractExeIcon.exe Used to extract the MainIcon(s) from the ScriptExe 
  Doc\               Additional document about decompiling related stuff
  data\Tidy\              is run after deobfucating to apply indent to the source code
  samples\           Useful 'protected' example scripts; use myAut2Exe to reveal its the sources
@@ -244,12 +219,11 @@ Files
  !SourceCode\SRC RanRot_MT.dll - Mersenne Twister & RanRot\       C source code for RanRot_MT.dll
  !SourceCode\SRC LZSS.exe\          C++ source code for lzss.exe
 
-
-Known bugs:
------------
-* myAutToExe does no real UTF8 converting. Well now at least scripts with chinese text string work.
+Known Bugs
+----------
+* myAutToExe does no real UTF8 converting. Well now at least scripts with Chinese text string work.
   But if there is somewhere some 'RawBinaryString' like $RawData = "??#$?%H" 
-  this string data will get corrupted. 
+  this string data will get corrupted.
 
   Workaround: To fix that open the file in SCiTE and choose
     File/Encoding/UTF8 and save it(may change sth to be able to save the file) or remove
@@ -257,11 +231,10 @@ Known bugs:
     But doing so will 'damage' any chinese text strings.
     Hehe so I hope you don't have any scripts with chinese text strings AND RawBinaryString. ;)
   
-  Anyway i'm somehow fed up with that char conventing crap. Well myAutToExe uses the WinAPI
+  Anyway I'm somehow fed up with that char conventing crap. Well myAutToExe uses the WinAPI
   WideCharToMultiByte(GetACP(),...) before saving the file. For more details look into 
   SourceCode files (and especially into UTF8.bas) :) Please contact me if you know something
   to improve that.
-
 
 * On Asian system (Chinese, Japan...) that have DBCS(Double Chars Set) enable
   maAutToExe will not run properly (as maybe other VB6 programs).
@@ -269,7 +242,6 @@ Known bugs:
   Chr() and Asc() to turn value it into a ACCII char and back. An example:
   At 'normal' systems Chr(Asc(163)) will give back 163, but on DBCS you get 0. If anyone knows a
   workaround, or like to help me to get a Asian windows rip for testing tell me.
-
 
 * Situation: Even on the test scripts you get:
   Calculating ADLER32 checksum from decrypted scriptdata
@@ -283,9 +255,8 @@ Known bugs:
    LCID list -> http://support.microsoft.com/?kbid=221435. Now it works. 
    Also, the 0 and 1024 LCID's work too.
 
-Narrowing down problems/Finding the bug:
-----------------------------------------
-
+Narrowing Down Problems/Finding A Bug
+-------------------------------------
 In case sth don't work as expected enable 'Don't delete temp files (compressed script)' so tempfiles remain
 Of course also have a look at the log-file.
 In that order files are processed created:
@@ -297,13 +268,10 @@ In that order files are processed created:
 (Note most 'unstable' part is the deobfuscator so if you got some real weird script it's probably because 
 the deobfuscator failed)
 
-
 If you don't have VB6 installed use 'src_AutToExe_VBA.doc' for active monitoring & debugging...
-
 
 Packed Scripts (ArmaDillo)
 --------------------------
-
 ...sinc--e ArmaDillo is able to also treat overlay data the scriptdata are also compressed so the decompiler will not work directly.
 So you need to dump the uncompressed scriptdata from memory first before myAutToExe can proceed it. (In future I may add a dumper module that may do this handle this task - but for now you'll need to do that 'by hand')
 
@@ -319,8 +287,6 @@ Search for 'AU3!EA06' again and copy everything into a new file and save it. The
 You may name it *.a3x and so it should be runable as compiled AutoIT script.
 (Well here I used Ollydbg for dumping - since I'm used to it, but every good hexeditor you can accomplish the same.)
 
-
-
 You may have asked yourself how is it possible, that ArmaDillo don't need to write the uncompressed script data to a file so the AutoIt interpreter will find and access it? Well ArmaDillo simply hooks(intercepts) all API-Calls like Kernel32!CreateFile or Kernel32!ReadFile that LauncherGUI.exe uses and redirects it if need to the uncompressed data in memory.
 
 Some notes to get into ArmaDillo with Olldbg.
@@ -333,7 +299,6 @@ Some notes to get into ArmaDillo with Olldbg.
 
 AutoHotKey
 ----------
-
    MATE supports AutoHotkey till 1.0.48.05 aka "AHK Classic"
    developed by Chris Mallett (Chris) from 2003 to 2009.
 
@@ -352,7 +317,6 @@ AutoHotKey
  
 AutoIt3Camo
 -----------
-
 ...this does some essential changes of the decryptions values in the interpreter stub
 (as well as the AutoIT Compiler that 'compiles' the script).
 the options dialog is to easy enter that value after you found them out.
@@ -399,9 +363,8 @@ start BCompare.exe %*
   instead of just run BCompare.exe so it does not expire. This way is even better
   than a crack because it's more simple and also 'compatible' with updates.
 
-The @Compiled macro
+The @Compiled Macro
 -------------------
-
 After you decompiled a script have a look into the log for warnings about the @Compiled macro. And if there are, check out what's going on in the script before you run. Else you might expire surprises like this:
 
 If @Compiled = 0 Then
@@ -419,13 +382,8 @@ If @Compiled = 0 Then
     EndIf
 EndIf
 
-
-
-
-
 The Compiled Script AutoIT File format:
 --------------------------------------
-
 AutoIt_Signature        size 0x14 Byte  String "�HK...AU3!"
 MD5PassphraseHash       size 0x10 Byte                      [LenKey=FAC1, StrKey=C3D2 AHK only]
 ResType                 size 0x4 Byte   eString: "FILE"     [             StrKey=16FA]
@@ -441,15 +399,12 @@ Begin of script data    eString "EA05..."
 overlaybytes            String
 EOF
 
-
 LenKey => See StringLenKey parameter in decrypt_eString()
 StrKey => See StringKey parameter in decrypt_eString()
 XorKey => Xor Value with that key
 
-
 Encrypted String (eString)
-================
-
+----------------
 eString
   Stringlen size 0x4 Byte
   String
@@ -469,10 +424,8 @@ The pseudorandom generator is call Mersenne Twister thats why MT.
 (Version 3.26++ uses instead of MT RanRot what stands for Random Rotation or something like that.).
 For that mt.dll ist need. for details see the C source code or Google for 'Mersenne Twister'
 
-
 Decompressing the Script
-========================
-
+------------------------
 FileFormat
 
 Signature   String "EA05" 
@@ -495,13 +448,11 @@ Implementation is inside LZSS.dll -> for exact info see C sources
 
 Beside the speculation where this algo comes from here the pseudocode on how it works for AutoIT 2 files which is the most simple version
 
-
 Proc Decompress (InputfileData, DeCompressedData)
    Signature       = ReadBytes(4)
    Signature == "JB01" ? -> if not Error
    
    UncompressedSize= ReadBytes(4)
-
    
    while 'decompressed_output' is smaller than 'UncompressedSize' Do
      if ReadBits(1)==1
@@ -518,7 +469,6 @@ Proc Decompress (InputfileData, DeCompressedData)
 
    end while
 
-
 Example A:
 
 uncompressable String: "<AUT2EX"
@@ -532,7 +482,6 @@ Note: '{1}' stands for 1 Bit that is 1
        writeOutputChar() = ReadBits(8)
      else
         ...
-
 
 Example B:
 
@@ -563,7 +512,7 @@ NumOfBytesToCopy=3
 
 uncompressed String: <EXEabcEXEdef
 
--------------------------------------------------------------------
+***********************************************************
 
 That is the newer version called adaptive Huffmann.
 It is used for AutoIT3 files.
@@ -574,7 +523,6 @@ Proc Decompress (InputfileData, DeCompressedData)
    Signature       = ReadBytes(4)
    UncompressedSize= ReadBytes(4)
    Compare with "EA05"       {"EA06"}
-
 
    while 'decompressed_output' is smaller than 'UncompressedSize' Do
 
@@ -637,7 +585,6 @@ Reverse Offset:   7643210
 {0000000000000110} 15 Bits that give represents the Bytes to seek back here it says 6 bytes
 {00}    2 bytes the specify the length here it's 0 +3 = 3 Bytes (since 3 is the minimum of repeated chars the algo cares about)
 
-
 Version differences:
 
 Version 2_00
@@ -688,7 +635,6 @@ History
 2.11 Added OptionsDialog
      added Winhex to better check, whats going on at offsets.
 
-
 2.10 Tools\GetAutoItVersion
      added LocalID BugFix
      Minor bugfixes / isTextFile function; better errorhandling(very limited support for negative fileoffsets for the Filestreamclass)
@@ -698,7 +644,6 @@ History
      Created DeCompilerConfig.bas for better configuation
      bugfix DeObfuscater (DeObfuscate_VanZande1_0_15; FnNameLoadTBL & FnNameHexToString...
      
-
 2.9 Support for AHK v1.0.48.5 'N/A'-files
     Added HexToBin Binary parser
     Added ProgressBar and a Cancel operation with ESC
@@ -819,33 +764,11 @@ History
                         http://deioncube.in/files/MyAutToExe/
                         http://myAutToExe2.tk
 
+***********************************************************
+***********************************************************
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-========= OutTakes (from previous Versions) =================
+============ OutTakes (From Previous Versions) ============
+===========================================================
 
 Sorry Decryptions for new au3 Files is not implemented yet.
 (...and so you can't extract files whose source you don't have.)
@@ -864,9 +787,7 @@ FileInstall('>>>AUTOIT SCRIPT<<<', @ScriptDir & '\ExtractedSource.au3')
 3. Run the exe -> 'ExtractedSource.au3' get's extracted.
 4. Now open 'ExtractedSource.au3' with this decompiler.
 
-
-Temporary Lastminute appendix....
-
+Temporary Last minute appendix....
 
 Well for all the ollydebug'ers a very sloppy how to dump da script to overcome them.
 
@@ -929,148 +850,19 @@ Go back -4 byte and dump anything there.
 4.----------------------------------------------------
 Now you can feed that dump file into the decompiler.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+***********************************************************
 
 hey ho yung Krackor ; Something to cheer ya up:
 
    If it runs - it can be cracked !
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Why that poggie has the name 'myAutToExe' - 'myExe2Aut' would be more logic ?
-Right - but now that's the way it is. 
+Why that proggie has the name 'myAutToExe' - 'myExe2Aut' would be more logic?
+Right - but now that's the way it is.
 Beside I find now 'myAutToExe' looks nicer.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 but now finally...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 EOL.
