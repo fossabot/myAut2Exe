@@ -31,8 +31,8 @@ The Options
 'GetCamo's'
    It'll use RegExp to grab the needed camo vectors from the Au3-exe-stub.
    ^- Note that this function only works if the target is unpacked. 
-   So if it's packed with Upx or other packer just unpack or dump the Exe from memory(via LordPE or Procdump). 
-   The dump don't need to be runable or contain the script. 
+   So if it's packed with Upx or another packer just unpack or dump the Exe from memory (via LordPE or Procdump). 
+   The dump doesn't need to be runable or contain the script. 
    Just use the dump file to get the camo vectors and then select the real script file.
 
 'Force Old Script Type'
